@@ -47,7 +47,7 @@ namespace WebViewHostExample.Controls
     }
         
 
-    public class HybridWebView : View, IHybridWebView
+    public class HybridWebView : WebView, IHybridWebView
     {
         public event EventHandler<SourceChangedEventArgs> SourceChanged;
         public event EventHandler<JavaScriptActionEventArgs> JavaScriptAction;
@@ -65,7 +65,7 @@ namespace WebViewHostExample.Controls
             Source = s;
         }
 
-        public WebViewSource Source
+        public  WebViewSource Source
         {
             get { return (WebViewSource)GetValue(SourceProperty); }
             set { SetValue(SourceProperty, value); }

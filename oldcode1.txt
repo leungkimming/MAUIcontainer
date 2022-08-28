@@ -1,0 +1,726 @@
+# main page code behind
+#if ANDROID
+using Android.Content;
+using Android.Webkit;
+using Android.Views;
+using Android.Runtime;
+#elif IOS
+using UIKit;
+using Foundation;
+using MobileCoreServices;
+#endif
+using WebViewHostExample.ViewModels;
+using System.Security.Policy;
+
+namespace WebViewHostExample;
+
+public partial class MainPage : ContentPage
+{
+	int count = 0;
+    MainPageViewModel vm;
+
+    public MainPage()
+	{
+		InitializeComponent();
+
+        vm = new MainPageViewModel();
+        //MyWebView.BindingContext = vm;
+        BindingContext = vm;
+
+        MyWebView.JavaScriptAction += MyWebView_JavaScriptAction;
+        vm.UrlText = "https://192.168.1.136:44355/dotnet6EAA/";
+        //vm.UrlText = "https://dotnet6client.z23.web.core.windows.net/";
+    }
+
+    protected override void OnParentSet()
+    {
+        base.OnParentSet();
+    }
+    void onSearchButton(object sender, EventArgs e) {
+        vm.Source = vm.UrlText;
+    }
+    private void MyWebView_JavaScriptAction(object sender, Controls.JavaScriptActionEventArgs e)
+    {
+		Dispatcher.Dispatch(() =>
+		{
+            //DisplayAlert("Data from Javascript", e.Payload, "OK");
+            if (e.Payload.StartsWith("Download:")) {
+                //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
+                int minePos = e.Payload.IndexOf(",mimeType:");
+                int base64Pos = e.Payload.IndexOf(",base64:");
+                string fileName = e.Payload.Substring(9, minePos - 9);
+                string minetype = e.Payload.Substring(minePos + 10, base64Pos - minePos - 10);
+                string base64 = e.Payload.Substring(base64Pos + 8);
+#if ANDROID
+                if (fileName == "tempfile.tmp") {
+                    MimeTypeMap mimemap = MimeTypeMap.Singleton;
+                    string ext = mimemap.GetExtensionFromMimeType(minetype);
+                    if (minetype == "application/x-zip-compressed") ext = "zip";
+                    string currentDateTime = DateTime.Now.ToString("yyyyMMddHHmmssff");
+                    fileName = currentDateTime + "." + ext;
+                }
+                //string dwldsPath = Path.Combine(Android.App.Application.Context
+                //    .GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads).AbsolutePath + "/", fileName);
+                string dwldsPath = Path.Combine(Android.OS.Environment
+                    .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath + "/", fileName);
+#elif IOS
+                string dwldsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
+#endif
+                byte[] pdfAsBytes = Convert.FromBase64String(base64);
+                File.WriteAllBytes(dwldsPath, pdfAsBytes);
+#if ANDROID
+                Intent intent = new Intent(Intent.ActionPick);
+                intent.SetType("*/*");
+                intent.SetAction(Intent.ActionGetContent);
+                Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
+#elif IOS
+                Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(dwldsPath));
+                //var docPicker = new UIDocumentPickerViewController(new string[] { UTType.Data, UTType.Content }, UIDocumentPickerMode.Import);
+                //docPicker.WasCancelled += DocPicker_WasCancelled;
+                //docPicker.DidPickDocumentAtUrls += DocPicker_DidPickDocumentAtUrls;
+                //var _currentViewController = GetCurrentUIController();
+                //if (_currentViewController != null)
+                //    _currentViewController.PresentViewController(docPicker, true, null);
+                //UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(docPicker, true, null);
+#endif
+            }
+        });
+    }
+#if IOS
+    //private async void DocPicker_DidPickDocumentAtUrls(object sender, UIDocumentPickedAtUrlsEventArgs e) {
+    //    string url = e.Urls[0].AbsoluteString;
+    //    await Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(url));
+    //}
+    //public UIViewController GetCurrentUIController() {
+    //    UIViewController viewController;
+    //    var window = UIApplication.SharedApplication.KeyWindow;
+    //    if (window == null) {
+    //        return null;
+    //    }
+
+    //    if (window.RootViewController.PresentedViewController == null) {
+    //        window = UIApplication.SharedApplication.Windows
+    //                 .FirstOrDefault(i => i.RootViewController != null &&
+    //                             i.RootViewController.GetType().FullName
+    //                             .Contains(typeof(Microsoft.Maui.Platform.MauiView).FullName));
+    //    }
+
+    //    viewController = window.RootViewController;
+
+    //    while (viewController.PresentedViewController != null) {
+    //        viewController = viewController.PresentedViewController;
+    //    }
+
+    //    return viewController;
+    //}
+#endif
+    //public async Task<FileResult> PickAndShow(PickOptions options) {
+    //    try {
+    //        var result = await FilePicker.Default.PickAsync(options);
+    //        if (result != null) {
+    //            if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
+    //                result.FileName.EndsWith("pdf", StringComparison.OrdinalIgnoreCase)) {
+    //                using var stream = await result.OpenReadAsync();
+    //                var image = ImageSource.FromStream(() => stream);
+    //            }
+    //        }
+
+    //        return result;
+    //    } catch (Exception ex) {
+    //        // The user canceled or something went wrong
+    //    }
+
+    //    return null;
+    //}
+}
+
+//string htmlSource = @"
+//<html>
+//<head></head>
+//<body>
+
+//<script>
+//    var counter = 1;
+//    function buttonClicked(e) {		
+//		invokeCSharpAction(counter++);
+//    }
+//</script>
+
+//<div style='display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%'>
+//<h2 style='font-family: script'><i>Fancy Web Title</i></h2>
+//<button style='height:48px; margin-left: 15px; margin-right: 15px; width: 128px; background: lightblue' id='hereBtn' onclick='javascript:buttonClicked(event)'>Click Me!</button>
+//</div>
+//</html>
+//";
+
+# Android handler
+using Android.App;
+using Android.Content;
+using Android.Graphics;
+using Android.Net.Http;
+using Android.OS;
+using Android.Provider;
+using Android.Runtime;
+using Android.Util;
+using Android.Webkit;
+using Android.Widget;
+using Android.Net;
+using Java.Interop;
+using Microsoft.Maui.Controls.Compatibility;
+using Microsoft.Maui.Handlers;
+using WebViewHostExample.Controls;
+using static Android.Net.Http.SslCertificate;
+using Microsoft.Extensions.DependencyInjection;
+using Java.Net;
+
+namespace WebViewHostExample.Platforms.Droid.Renderers {
+    public class HybridWebViewHandler : ViewHandler<IHybridWebView, Android.Webkit.WebView> {
+        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
+
+        const string JavascriptFunction = "function invokeCSharpAction(data){jsBridge.invokeAction(data);}";
+
+        private JSBridge jsBridgeHandler;
+        public JavascriptWebViewClient _JSclient;
+
+        public HybridWebViewHandler() : base(HybridWebViewMapper) {
+        }
+
+        private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
+            LoadSource(e.Source, PlatformView);
+            if (e.Source is UrlWebViewSource url) {
+                _JSclient.org_Url = url.Url;
+            }
+        }
+
+        protected override Android.Webkit.WebView CreatePlatformView() {
+            var webView = new Android.Webkit.WebView(Context);
+            jsBridgeHandler = new JSBridge(this);
+
+            webView.Settings.JavaScriptEnabled = true;
+
+            webView.Settings.SetSupportMultipleWindows(true);
+            webView.Settings.SetEnableSmoothTransition(true);
+            webView.Settings.DomStorageEnabled = true;
+            webView.Settings.AllowFileAccessFromFileURLs = true;
+            webView.Settings.DefaultTextEncodingName = "UTF-8";
+            _JSclient = new JavascriptWebViewClient($"javascript: {JavascriptFunction}");
+            webView.SetWebViewClient(_JSclient);
+            webView.AddJavascriptInterface(jsBridgeHandler, "jsBridge");
+            //webView.SetDownloadListener(new CustomDownloadListener(webView));
+            webView.SetWebChromeClient(new CustomWebChromeClient(this));
+
+            return webView;
+        }
+
+        protected override void ConnectHandler(Android.Webkit.WebView platformView) {
+            base.ConnectHandler(platformView);
+
+            if (VirtualView.Source != null) {
+                LoadSource(VirtualView.Source, PlatformView);
+            }
+
+            VirtualView.SourceChanged += VirtualView_SourceChanged;
+        }
+
+        protected override void DisconnectHandler(Android.Webkit.WebView platformView) {
+            base.DisconnectHandler(platformView);
+
+            VirtualView.SourceChanged -= VirtualView_SourceChanged;
+            VirtualView.Cleanup();
+
+            jsBridgeHandler?.Dispose();
+            jsBridgeHandler = null;
+        }
+
+        private static void LoadSource(WebViewSource source, Android.Webkit.WebView control) {
+            try {
+                if (source is HtmlWebViewSource html) {
+                    control.LoadDataWithBaseURL(html.BaseUrl, html.Html, null, "charset=UTF-8", null);
+                } else if (source is UrlWebViewSource url) {
+                    control.LoadUrl(url.Url);
+                }
+            } catch { }
+        }
+    }
+    public class CustomWebChromeClient : WebChromeClient {
+        public HybridWebViewHandler _handler;
+        public IValueCallback _callback;
+        public CustomWebChromeClient(HybridWebViewHandler handler) {
+            _handler = handler;
+        }
+        public override bool OnCreateWindow(Android.Webkit.WebView view, bool isDialog, bool isUserGesture, Message resultMsg) {
+            var TestResult = view.GetHitTestResult();
+            string data = TestResult.Extra;
+            Context context = view.Context;
+            var uri = Android.Net.Uri.Parse(data);
+            Intent browserIntent = new Intent(Intent.ActionView, uri);
+            context.StartActivity(browserIntent);
+            return false;
+        }
+        public void doCallback(Android.Net.Uri uri) {
+            Android.Net.Uri[] files = new Android.Net.Uri[1];
+            if (uri != null) {
+                files[0] = uri;
+            } else {
+                files = new Android.Net.Uri[] { };
+            }
+            _callback.OnReceiveValue(files);
+        }
+        public override bool OnShowFileChooser(Android.Webkit.WebView webView, IValueCallback filePathCallback,
+            FileChooserParams fileChooserParams) {
+
+            _callback = filePathCallback;
+            MainActivity.handler = doCallback;
+            Intent intent = new Intent(Intent.ActionPick);
+            intent.SetType("*/*");
+            intent.SetAction(Intent.ActionGetContent);
+            _handler.Services.GetService<Activity>().StartActivityForResult(Intent.CreateChooser(intent, "Select File to Upload"), 1);
+            return true;
+        }
+    }
+
+    public class JavascriptWebViewClient : WebViewClient {
+        string _javascript;
+        string user = "";
+        string pw = "";
+        int count = 0;
+        public string org_Url { get; set; }
+
+        public JavascriptWebViewClient(string javascript) {
+            _javascript = javascript;
+        }
+        public override void OnPageStarted(Android.Webkit.WebView view, string url, Bitmap favicon) {
+            base.OnPageStarted(view, url, favicon);
+            view.EvaluateJavascript(_javascript, null);
+        }
+        public override void OnReceivedSslError(global::Android.Webkit.WebView view, SslErrorHandler handler, SslError error) {
+            handler.Proceed();//this line make ssl error handle so the webview show the page even with certificate errors
+        }
+
+        public override void OnReceivedHttpAuthRequest(global::Android.Webkit.WebView? view, HttpAuthHandler? handler, string? host, string? realm) {
+            if (user != "") {
+                handler.Proceed(user, pw);
+                count = 0;
+                user = null;
+                pw = null;
+                return;
+            } else if (count == 0) {
+                MessagingCenter.Subscribe<Login, string[]>(this, "WindowsAuthen", (sender, arg) => {
+                    MessagingCenter.Unsubscribe<Login, string[]>(this, "WindowsAuthen");
+                    user = arg[0];
+                    pw = arg[1];
+                    view.Reload();
+                });
+                Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new Login());
+            }
+            count++;
+        }
+        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, Android.Webkit.IWebResourceRequest request) {
+            if (request.Url.ToString() != org_Url) {
+                string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
+                    "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
+                    "xhr.responseType = 'blob';" +
+                    "xhr.onload = function(e) {" +
+                    "    if (this.status == 200) {" +
+                    "        var blobPdf = this.response;" +
+                    "        var fileName = this.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];" +
+                    "        var mimetype = this.getResponseHeader('content-disposition');" +
+                    "        var reader = new FileReader();" +
+                    "        reader.readAsDataURL(blobPdf);" +
+                    "        reader.onloadend = function() {" +
+                    "            base64data = reader.result.split(';base64,')[1];" +
+                    "            savetoMAUI(base64data, mimetype, fileName)" +
+                    "        }" +
+                    "    }" +
+                    "};" +
+                    "xhr.send();";
+                view.LoadUrl(_javascript);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public class JSBridge : Java.Lang.Object {
+        readonly WeakReference<HybridWebViewHandler> hybridWebViewRenderer;
+
+        internal JSBridge(HybridWebViewHandler hybridRenderer) {
+            hybridWebViewRenderer = new WeakReference<HybridWebViewHandler>(hybridRenderer);
+        }
+
+        [JavascriptInterface]
+        [Export("invokeAction")]
+        public void InvokeAction(string data) {
+            HybridWebViewHandler hybridRenderer;
+            if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget(out hybridRenderer)) {
+                hybridRenderer.VirtualView.InvokeAction(data);
+            }
+        }
+
+        //[JavascriptInterface]
+        //[Export("saveBase64toDownload")]
+        //[Obsolete]
+        //public async void saveBase64toDownload(string base64data) {
+        //    string currentDateTime = DateTime.Now.ToString("yyyyMMddHHmmssff");
+        //    string minetype = base64data.Substring(5, (base64data.IndexOf(";base64,") - 5));
+        //    string base64 = base64data.Substring(base64data.IndexOf(";base64,") + 8);
+        //    MimeTypeMap mimemap = MimeTypeMap.Singleton;
+        //    string ext = mimemap.GetExtensionFromMimeType(minetype);
+        //    if (minetype == "application/x-zip-compressed") ext = "zip";
+        //    string dwldsPath = Android.OS.Environment.GetExternalStoragePublicDirectory(
+        //        Android.OS.Environment.DirectoryDownloads) + "/" + currentDateTime + "." + ext;
+        //    byte[] pdfAsBytes = Base64.Decode(base64, 0);
+        //    File.WriteAllBytes(dwldsPath, pdfAsBytes);
+        //    //Toast.MakeText(Android.App.Application.Context, "File downloaded!", ToastLength.Short).Show();
+        //    bool answer = await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert(
+        //        "File downloaded", "Would you like to browse the Download Folder?", "Yes", "No");
+        //    if (answer) {
+        //        Intent intent = new Intent(Intent.ActionPick);
+        //        intent.SetType("*/*");
+        //        intent.SetAction(Intent.ActionGetContent);
+        //        HybridWebViewHandler hybridRenderer;
+        //        if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget(out hybridRenderer)) {
+        //            hybridRenderer.Services.GetService<Activity>().StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
+        //        }
+        //    }
+        //}
+    }
+
+    public class CustomDownloadListener : Java.Lang.Object {
+        public Android.Webkit.WebView _webview;
+        public CustomDownloadListener(Android.Webkit.WebView view) {
+            _webview = view;
+        }
+        public void OnDownloadStart_old1(string url, string userAgent, string contentDisposition, string mimetype, long contentLength) {
+            try {
+                if (!url.StartsWith("blob")) {
+                    string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
+                        "xhr.open('GET', '" + url + "', true);" +
+                        "xhr.setRequestHeader('Content-type','" + mimetype + "');" +
+                        "xhr.responseType = 'blob';" +
+                        "xhr.onload = function(e) {" +
+                        "    if (this.status == 200) {" +
+                        "        var blobPdf = this.response;" +
+                        "        var reader = new FileReader();" +
+                        "        reader.readAsDataURL(blobPdf);" +
+                        "        reader.onloadend = function() {" +
+                        "            base64data = reader.result.split(';base64,')[1];" +
+                        "            savetoMAUI(base64data, '" + mimetype + "', 'tempfile.tmp')" +
+                        "        }" +
+                        "    }" +
+                        "};" +
+                        "xhr.send();";
+                    _webview.LoadUrl(_javascript);
+                }
+            } catch (Exception) {
+                throw;
+            }
+        }
+        public void OnDownloadStart_old(string url, string userAgent, string contentDisposition, string mimetype, long contentLength) {
+            try {
+                if (url.StartsWith("blob")) {
+                    //string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
+                    //    "xhr.open('GET', '" + url + "', true);" +
+                    //    "xhr.setRequestHeader('Content-type','" + mimetype + "');" +
+                    //    "xhr.responseType = 'blob';" +
+                    //    "xhr.onload = function(e) {" +
+                    //    "    if (this.status == 200) {" +
+                    //    "        var blobPdf = this.response;" +
+                    //    "        var reader = new FileReader();" +
+                    //    "        reader.readAsDataURL(blobPdf);" +
+                    //    "        reader.onloadend = function() {" +
+                    //    "            base64data = reader.result;" +
+                    //    "            jsBridge.saveBase64toDownload(base64data); " +
+                    //    "        }" +
+                    //    "    }" +
+                    //    "};" +
+                    //    "xhr.send();";
+                    //_webview.LoadUrl(_javascript);
+                } else {
+                    //DownloadManager.Request request = new DownloadManager.Request(Android.Net.Uri.Parse(url));
+                    ////request.AllowScanningByMediaScanner();
+                    //request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted);
+                    //// if this path is not create, we can create it.
+                    //string thmblibrary = FileSystem.AppDataDirectory + "/download";
+                    //if (!Directory.Exists(thmblibrary))
+                    //    Directory.CreateDirectory(thmblibrary);
+                    //request.SetDestinationInExternalFilesDir(Android.App.Application.Context, FileSystem.AppDataDirectory, "download");
+                    //DownloadManager dm = (DownloadManager)Android.App.Application.Context.GetSystemService(Android.App.Application.DownloadService);
+
+                    DownloadManager.Request request = new DownloadManager.Request(Android.Net.Uri.Parse(url));
+                    request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted);
+                    string currentDateTime = DateTime.Now.ToString("yyyyMMddHHmmssff");
+                    MimeTypeMap mimemap = MimeTypeMap.Singleton;
+                    string ext = mimemap.GetExtensionFromMimeType(mimetype);
+                    if (mimetype == "application/x-zip-compressed") ext = "zip";
+                    request.SetDestinationInExternalPublicDir(Android.OS.Environment.DirectoryDownloads, "temp.pdf");
+                    DownloadManager dm = (DownloadManager)Android.App.Application.Context.GetSystemService(Android.App.Application.DownloadService);
+                    dm.Enqueue(request);
+                }
+            } catch (Exception) {
+                throw;
+            }
+        }
+    }
+}
+
+# IOS handler
+using CoreGraphics;
+
+using Foundation;
+
+using Microsoft.Maui.Handlers;
+using ObjCRuntime;
+using System;
+using System.Management;
+using WebKit;
+
+using WebViewHostExample.Controls;
+
+namespace WebViewHostExample.Platforms.iOS.Renderers
+{
+    public class HybridWebViewHandler : ViewHandler<IHybridWebView, WKWebView>
+    {
+        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
+        
+        const string JavaScriptFunction = "function invokeCSharpAction(data){window.webkit.messageHandlers.invokeAction.postMessage(data);}";
+
+        private WKUserContentController userController;
+        private JSBridge jsBridgeHandler;
+        public string Org_url;
+        WKWebViewDelegate _delegate;
+
+        public HybridWebViewHandler() : base(HybridWebViewMapper)
+        {
+        }
+
+        private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e)
+        {
+            LoadSource(e.Source, PlatformView);
+            if (e.Source is UrlWebViewSource url) {
+                _delegate.org_Url = url.Url;
+            }
+        }
+
+        protected override WKWebView CreatePlatformView()
+        {
+
+            jsBridgeHandler = new JSBridge(this);
+            userController = new WKUserContentController();
+
+            var script = new WKUserScript(new NSString(JavaScriptFunction), WKUserScriptInjectionTime.AtDocumentEnd, false);
+
+            userController.AddUserScript(script);
+            userController.AddScriptMessageHandler(jsBridgeHandler, "invokeAction");
+
+            var config = new WKWebViewConfiguration { UserContentController = userController };
+            var webView = new WKWebView(CGRect.Empty, config);
+            _delegate = new WKWebViewDelegate();
+            webView.NavigationDelegate = _delegate;
+
+            return webView;            
+        }
+
+        protected override void ConnectHandler(WKWebView platformView)
+        {
+            base.ConnectHandler(platformView);
+
+            if (VirtualView.Source != null)
+            {
+                LoadSource(VirtualView.Source, PlatformView);
+            }
+
+            VirtualView.SourceChanged += VirtualView_SourceChanged;
+        }
+
+        protected override void DisconnectHandler(WKWebView platformView)
+        {
+            base.DisconnectHandler(platformView);
+
+            VirtualView.SourceChanged -= VirtualView_SourceChanged;
+
+            userController.RemoveAllUserScripts();
+            userController.RemoveScriptMessageHandler("invokeAction");
+        
+            jsBridgeHandler?.Dispose();
+            jsBridgeHandler = null;
+        }
+
+
+        private static void LoadSource(WebViewSource source, WKWebView control)
+        {
+            if (source is HtmlWebViewSource html)
+            {
+                control.LoadHtmlString(html.Html, new NSUrl(html.BaseUrl ?? "http://localhost", true));
+            }
+            else if (source is UrlWebViewSource url)
+            {
+                control.LoadRequest(new NSUrlRequest(new NSUrl(url.Url)));
+            }
+        }
+    }
+    public class WKWebViewDelegate : WKNavigationDelegate {
+        string user = "";
+        string pw = "";
+        int count = 0;
+        public string org_Url { get; set; }
+
+        [Foundation.Export("webView:didReceiveAuthenticationChallenge:completionHandler:")]
+        public override void DidReceiveAuthenticationChallenge(WKWebView webView, NSUrlAuthenticationChallenge challenge,
+            Action<NSUrlSessionAuthChallengeDisposition, NSUrlCredential> completionHandler) {
+            if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodServerTrust) {
+                completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
+                    NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));
+            } else if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodNTLM) {
+                if (user != "") {
+                    NSUrlCredential credentials = new NSUrlCredential(user, pw, persistence: NSUrlCredentialPersistence.ForSession);
+                    challenge.Sender?.UseCredential(credentials, challenge);
+                    completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential, credentials);
+                    count = 0;
+                    user = null;
+                    pw = null;
+                    return;
+                } else if (count == 0) {
+                    MessagingCenter.Subscribe<Login, string[]>(this, "WindowsAuthen", (sender, arg) => {
+                        MessagingCenter.Unsubscribe<Login, string[]>(this, "WindowsAuthen");
+                        user = arg[0];
+                        pw = arg[1];
+                        webView.Reload();
+                    });
+                    Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new Login());
+                    completionHandler(NSUrlSessionAuthChallengeDisposition.CancelAuthenticationChallenge, null);
+                }
+                count++;
+            } else {
+                completionHandler(NSUrlSessionAuthChallengeDisposition.CancelAuthenticationChallenge, null);
+            }
+        }
+        public override void DecidePolicy(WKWebView webView, WKNavigationAction navigationAction, Action<WKNavigationActionPolicy> decisionHandler) {
+            var url = navigationAction.Request.Url.AbsoluteString;
+            if ((navigationAction.NavigationType == WKNavigationType.LinkActivated) || 
+                    navigationAction.ShouldPerformDownload ||
+                    ((navigationAction.NavigationType == WKNavigationType.Other) && (url != org_Url))) {
+                decisionHandler(WKNavigationActionPolicy.Cancel);
+                Browser.Default.OpenAsync(navigationAction.Request.Url, BrowserLaunchMode.SystemPreferred);
+            } else 
+                decisionHandler(WKNavigationActionPolicy.Allow);
+            #region
+            //if (url.StartsWith("blob:")) {
+            //    // Do the downloading operation here
+            //    //string _javascript = @"var xhr = new XMLHttpRequest();" +
+            //    //    "xhr.open('GET', '" + url + "', true);" +
+            //    //    "xhr.setRequestHeader('Content-type','" + mimetype + "');" +
+            //    //    "xhr.responseType = 'blob';" +
+            //    //    "xhr.onload = function(e) {" +
+            //    //    "    if (this.status == 200) {" +
+            //    //    "        var blobPdf = this.response;" +
+            //    //    "        var reader = new FileReader();" +
+            //    //    "        reader.readAsDataURL(blobPdf);" +
+            //    //    "        reader.onloadend = function() {" +
+            //    //    "            base64data = reader.result;" +
+            //    //    "            jsBridge.saveBase64toDownload(base64data); " +
+            //    //    "        }" +
+            //    //    "    }" +
+            //    //    "};" +
+            //    //    "xhr.send();";
+            //    // blob:https://192.168.1.136:44355/52c04d05-e118-4abe-8ad0-183a985a5dbc
+            //    // webView.EvaluateJavaScriptAsync("window.webkit.messageHandlers.invokeAction.postMessage('" + url + "');");
+            //    // Block the webview to load a new url
+            //    decisionHandler(WKNavigationActionPolicy.Cancel);
+            //    string js = @"
+            //            (async function download() {  
+            //                const url = '" + url + @"';  
+            //                try {  
+            //                    // we use a second try block here to have more detailed error information  
+            //                    // because of the nature of JS the outer try-catch doesn't know anything where the error happended  
+            //                    let res;  
+            //                    try {  
+            //                        res = await fetch(url, {  
+            //                            credentials: 'include'  
+            //                        });  
+            //                    } catch (err) {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`fetch threw, error: ${err}, url: ${url}`);  
+            //                        return;  
+            //                    }  
+            //                    if (!res.ok) {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`Response status was not ok, status: ${res.status}, url: ${url}`);  
+            //                        return;  
+            //                    }  
+            //                    const contentDisp = res.headers.get('content-disposition');  
+            //                    if (contentDisp) {  
+            //                        const match = contentDisp.match(/(^;|)\\s*filename=\\s*(\""([^\""]*)\""|([^;\\s]*))\\s*(;|$)/i);  
+            //                        if (match) {  
+            //                            filename = match[3] || match[4];  
+            //                        } else {  
+            //                            // TODO: we could here guess the filename from the mime-type (e.g. unnamed.pdf for pdfs, or unnamed.tiff for tiffs)  
+            //                            window.webkit.messageHandlers.invokeAction.postMessage(`content-disposition header could not be matched against regex, content-disposition: ${contentDisp} url: ${url}`);  
+            //                        }  
+            //                    } else {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`content-disposition header missing, url: ${url}`);  
+            //                        return;  
+            //                    }  
+            //                    if (!filename) {  
+            //                        const contentType = res.headers.get('content-type');  
+            //                        if (contentType) {  
+            //                            if (contentType.indexOf('application/json') === 0) {  
+            //                                filename = 'unnamed.pdf';  
+            //                            } else if (contentType.indexOf('image/tiff') === 0) {  
+            //                                filename = 'unnamed.tiff';  
+            //                            }  
+            //                        }  
+            //                    }  
+            //                    if (!filename) {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`Could not determine filename from content-disposition nor content-type, content-dispositon: ${contentDispositon}, content-type: ${contentType}, url: ${url}`);  
+            //                    }  
+            //                    let data;  
+            //                    try {  
+            //                        data = await res.blob();  
+            //                    } catch (err) {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`res.blob() threw, error: ${err}, url: ${url}`);  
+            //                        return;  
+            //                    }  
+            //                    const fr = new FileReader();  
+            //                    fr.onload = () => {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`${filename};${fr.result}`)  
+            //                    };  
+            //                    fr.addEventListener('error', (err) => {  
+            //                        window.webkit.messageHandlers.invokeAction.postMessage(`FileReader threw, error: ${err}`)  
+            //                    })  
+            //                    fr.readAsDataURL(data);  
+            //                } catch (err) {  
+            //                    // TODO: better log the error, currently only TypeError: Type error  
+            //                    window.webkit.messageHandlers.invokeAction.postMessage(`JSError while downloading document, url: ${url}, err: ${err}`)  
+            //                }  
+            //            })();  
+            //            // null is needed here as this eval returns the last statement and we can't return a promise  
+            //            null;  
+            //        ";
+            //    webView.EvaluateJavaScriptAsync(js);
+            //    return;
+            //} else {
+            //    decisionHandler(WKNavigationActionPolicy.Allow);
+            //}
+            #endregion
+        }
+    }
+    public class JSBridge : NSObject, IWKScriptMessageHandler {
+        readonly WeakReference<HybridWebViewHandler> hybridWebViewRenderer;
+
+        internal JSBridge(HybridWebViewHandler hybridRenderer) {
+            hybridWebViewRenderer = new WeakReference<HybridWebViewHandler>(hybridRenderer);
+        }
+
+        public void DidReceiveScriptMessage(WKUserContentController userContentController, WKScriptMessage message) {
+            HybridWebViewHandler hybridRenderer;
+
+            if (hybridWebViewRenderer.TryGetTarget(out hybridRenderer)) {
+                hybridRenderer.VirtualView?.InvokeAction(message.Body.ToString());
+            }
+        }
+    }
+}
+
+
+
+

@@ -33,5 +33,19 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>URL</string>
+		<string>txt</string>
+		<string>pdf</string>
+		<string>file</string>
+		<string>com.adobe.Adobe-Reader</string>
+	</array>
 </dict>
 </plist>

@@ -14,9 +14,13 @@ public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
-        if ((requestCode == 1) && (resultCode == Result.Ok) && (data != null) && handler != null) {
-            Android.Net.Uri uri = data.Data;
-            handler(uri);
+        if ((requestCode == 1) && handler != null) {
+            if ((resultCode == Result.Ok) && (data != null)) {
+                Android.Net.Uri uri = data.Data;
+                handler(uri);
+            } else {
+                handler(null);
+            }
             handler = null;
         }
     }

@@ -15,20 +15,26 @@ using Microsoft.Maui.Handlers;
 using WebViewHostExample.Controls;
 using static Android.Net.Http.SslCertificate;
 using Microsoft.Extensions.DependencyInjection;
+using Java.Net;
+using Java.Lang;
 
 namespace WebViewHostExample.Platforms.Droid.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, Android.Webkit.WebView> {
         public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
 
-        const string JavascriptFunction = "function invokeCSharpAction(data){jsBridge.invokeAction(data);}";
+        const string JavascriptFunction = "function invokeCSharpAction(data){jsBridge.invokeAction(data);} location.host;";
 
         private JSBridge jsBridgeHandler;
+        public JavascriptWebViewClient _JSclient;
 
         public HybridWebViewHandler() : base(HybridWebViewMapper) {
         }
 
         private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
             LoadSource(e.Source, PlatformView);
+            if (e.Source is UrlWebViewSource url) {
+                _JSclient.org_Url = url.Url;
+            }
         }
 
         protected override Android.Webkit.WebView CreatePlatformView() {
@@ -42,11 +48,10 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             webView.Settings.DomStorageEnabled = true;
             webView.Settings.AllowFileAccessFromFileURLs = true;
             webView.Settings.DefaultTextEncodingName = "UTF-8";
-            webView.SetWebViewClient(new JavascriptWebViewClient($"javascript: {JavascriptFunction}"));
+            _JSclient = new JavascriptWebViewClient($"javascript: {JavascriptFunction}");
+            webView.SetWebViewClient(_JSclient);
             webView.AddJavascriptInterface(jsBridgeHandler, "jsBridge");
-            webView.SetDownloadListener(new CustomDownloadListener(webView));
             webView.SetWebChromeClient(new CustomWebChromeClient(this));
-
             return webView;
         }
 
@@ -86,13 +91,26 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         public CustomWebChromeClient(HybridWebViewHandler handler) {
             _handler = handler;
         }
+        public override bool OnCreateWindow(Android.Webkit.WebView view, bool isDialog, bool isUserGesture, Message resultMsg) {
+            var TestResult = view.GetHitTestResult();
+            string data = TestResult.Extra;
+            Context context = view.Context;
+            var uri = Android.Net.Uri.Parse(data);
+            Intent browserIntent = new Intent(Intent.ActionView, uri);
+            context.StartActivity(browserIntent);
+            return false;
+        }
         public void doCallback(Android.Net.Uri uri) {
-            var files = new Android.Net.Uri[] { uri };
+            Android.Net.Uri[] files = new Android.Net.Uri[1];
+            if (uri != null) {
+                files[0] = uri;
+            } else {
+                files = new Android.Net.Uri[] { };
+            }
             _callback.OnReceiveValue(files);
         }
         public override bool OnShowFileChooser(Android.Webkit.WebView webView, IValueCallback filePathCallback,
             FileChooserParams fileChooserParams) {
-
             _callback = filePathCallback;
             MainActivity.handler = doCallback;
             Intent intent = new Intent(Intent.ActionPick);
@@ -102,25 +120,32 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             return true;
         }
     }
-
-    public class JavascriptWebViewClient : WebViewClient {
+    public class JavascriptWebViewClient : WebViewClient, IValueCallback {
         string _javascript;
         string user = "";
         string pw = "";
         int count = 0;
+        public string org_Url { get; set; }
 
         public JavascriptWebViewClient(string javascript) {
             _javascript = javascript;
         }
-
         public override void OnPageStarted(Android.Webkit.WebView view, string url, Bitmap favicon) {
             base.OnPageStarted(view, url, favicon);
-            view.EvaluateJavascript(_javascript, null);
+            view.EvaluateJavascript(_javascript, this);
         }
+        public async void OnReceiveValue(Java.Lang.Object result) {
+            string host = ((string)result).Trim('"');
+            if (!host.StartsWith("192.168.1.136")) {
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Should not logon untrusted server!", "Quit");
+                Microsoft.Maui.Controls.Application.Current.Quit();
+            }
+        }
+#if DEBUG
         public override void OnReceivedSslError(global::Android.Webkit.WebView view, SslErrorHandler handler, SslError error) {
             handler.Proceed();//this line make ssl error handle so the webview show the page even with certificate errors
         }
-
+#endif
         public override void OnReceivedHttpAuthRequest(global::Android.Webkit.WebView? view, HttpAuthHandler? handler, string? host, string? realm) {
             if (user != "") {
                 handler.Proceed(user, pw);
@@ -139,6 +164,31 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             }
             count++;
         }
+        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, Android.Webkit.IWebResourceRequest request) {
+            if (request.Url.ToString() != org_Url) {
+                string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
+                    "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
+                    "xhr.responseType = 'blob';" +
+                    "xhr.onload = function(e) {" +
+                    "    if (this.status == 200) {" +
+                    "        var blobPdf = this.response;" +
+                    "        var fileName = this.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];" +
+                    "        var mimetype = this.getResponseHeader('content-disposition');" +
+                    "        var reader = new FileReader();" +
+                    "        reader.readAsDataURL(blobPdf);" +
+                    "        reader.onloadend = function() {" +
+                    "            base64data = reader.result.split(';base64,')[1];" +
+                    "            savetoMAUI(base64data, mimetype, fileName)" +
+                    "        }" +
+                    "    }" +
+                    "};" +
+                    "xhr.send();";
+                view.LoadUrl(_javascript);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public class JSBridge : Java.Lang.Object {
@@ -154,77 +204,6 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             HybridWebViewHandler hybridRenderer;
             if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget(out hybridRenderer)) {
                 hybridRenderer.VirtualView.InvokeAction(data);
-            }
-        }
-
-        [JavascriptInterface]
-        [Export("saveBase64toDownload")]
-        [Obsolete]
-        public async void saveBase64toDownload(string base64data) {
-            string currentDateTime = DateTime.Now.ToString("yyyyMMddHHmmssff");
-            string minetype = base64data.Substring(5, (base64data.IndexOf(";base64,") - 5));
-            string base64 = base64data.Substring(base64data.IndexOf(";base64,") + 8);
-            MimeTypeMap mimemap = MimeTypeMap.Singleton;
-            string ext = mimemap.GetExtensionFromMimeType(minetype);
-            if (minetype == "application/x-zip-compressed") ext = "zip";
-            string dwldsPath = Android.OS.Environment.GetExternalStoragePublicDirectory(
-                Android.OS.Environment.DirectoryDownloads) + "/" + currentDateTime + "." + ext;
-            byte[] pdfAsBytes = Base64.Decode(base64, 0);
-            File.WriteAllBytes(dwldsPath, pdfAsBytes);
-            //Toast.MakeText(Android.App.Application.Context, "File downloaded!", ToastLength.Short).Show();
-            bool answer = await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert(
-                "File downloaded", "Would you like to browse the Download Folder?", "Yes", "No");
-            if (answer) {
-                Intent intent = new Intent(Intent.ActionPick);
-                intent.SetType("*/*");
-                intent.SetAction(Intent.ActionGetContent);
-                HybridWebViewHandler hybridRenderer;
-                if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget(out hybridRenderer)) {
-                    hybridRenderer.Services.GetService<Activity>().StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
-                }
-            }
-        }
-    }
-
-    public class CustomDownloadListener : Java.Lang.Object, IDownloadListener {
-        public Android.Webkit.WebView _webview;
-        public CustomDownloadListener(Android.Webkit.WebView view) {
-            _webview = view;
-        }
-        public void OnDownloadStart(string url, string userAgent, string contentDisposition, string mimetype, long contentLength) {
-            try {
-                if (url.StartsWith("blob")) {
-                    string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
-                        "xhr.open('GET', '" + url + "', true);" +
-                        "xhr.setRequestHeader('Content-type','" + mimetype + "');" +
-                        "xhr.responseType = 'blob';" +
-                        "xhr.onload = function(e) {" +
-                        "    if (this.status == 200) {" +
-                        "        var blobPdf = this.response;" +
-                        "        var reader = new FileReader();" +
-                        "        reader.readAsDataURL(blobPdf);" +
-                        "        reader.onloadend = function() {" +
-                        "            base64data = reader.result;" +
-                        "            jsBridge.saveBase64toDownload(base64data); " +
-                        "        }" +
-                        "    }" +
-                        "};" +
-                        "xhr.send();";
-                    _webview.LoadUrl(_javascript);
-                } else {
-                    DownloadManager.Request request = new DownloadManager.Request(Android.Net.Uri.Parse(url));
-                    //request.AllowScanningByMediaScanner();
-                    request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted);
-                    // if this path is not create, we can create it.
-                    string thmblibrary = FileSystem.AppDataDirectory + "/download";
-                    if (!Directory.Exists(thmblibrary))
-                        Directory.CreateDirectory(thmblibrary);
-                    request.SetDestinationInExternalFilesDir(Android.App.Application.Context, FileSystem.AppDataDirectory, "download");
-                    DownloadManager dm = (DownloadManager)Android.App.Application.Context.GetSystemService(Android.App.Application.DownloadService);
-                    dm.Enqueue(request);
-                }
-            } catch (Exception) {
-                throw;
             }
         }
     }

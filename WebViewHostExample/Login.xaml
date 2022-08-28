@@ -13,7 +13,7 @@
                 <Grid Margin="0,5">
                     <Frame Opacity="0.3" BackgroundColor="White" CornerRadius="5"/>
                     <Entry BackgroundColor="Transparent" Placeholder="Enter username" 
-                           Margin="5,0" x:Name="user" PlaceholderColor="Gray" />
+                           Margin="5,0" x:Name="user" PlaceholderColor="Gray" Keyboard="Plain" />
                 </Grid>
                 <Label FontSize="16" Text="Password"/>
                 <Grid Margin="0,5">
