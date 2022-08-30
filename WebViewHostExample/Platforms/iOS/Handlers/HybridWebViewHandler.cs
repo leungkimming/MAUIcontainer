@@ -97,18 +97,6 @@ namespace WebViewHostExample.Platforms.iOS.Renderers
 #if DEBUG
             isDebug = true;
 #endif
-            bool serverTrusted = true;
-            WKJavascriptEvaluationResult handler = (NSObject result, NSError err) => {
-                string host = result.ToString();
-                if ((err != null) || ((host != "") && !host.StartsWith("192.168.1.136"))) {
-                    Application.Current.MainPage.DisplayAlert("Error", "Should not logon untrusted server!", "Quit");
-                    serverTrusted = false;
-                }
-            };
-            webView.EvaluateJavaScript("location.host;", handler);
-            if (!serverTrusted)
-                completionHandler(NSUrlSessionAuthChallengeDisposition.CancelAuthenticationChallenge, null);
-
             if (isDebug && (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodServerTrust)) {
                 completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
                     NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));

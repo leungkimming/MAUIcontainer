@@ -6,7 +6,7 @@ namespace WebViewHostExample;
 public partial class MainPage : ContentPage
 {
     MainPageViewModel vm;
-    JavaScriptAction jsAction;
+    public JavaScriptActionHandler jsActionHandler { get; set; }
 
     public MainPage() {
 		InitializeComponent();
@@ -14,11 +14,11 @@ public partial class MainPage : ContentPage
         vm = new MainPageViewModel();
         BindingContext = vm;
 
-        MyWebView.JavaScriptAction += MyWebView_JavaScriptAction;
+        MyWebView.JavaScriptAction += MyWebView_JavaScriptActionHandler;
         vm.UrlText = "https://192.168.1.136:44355/dotnet6EAA/";
         //vm.UrlText = "https://dotnet6client.z23.web.core.windows.net/";
 
-        jsAction = new JavaScriptAction();
+        jsActionHandler = new JavaScriptActionHandler();
     }
 
     protected override void OnParentSet()
@@ -28,12 +28,11 @@ public partial class MainPage : ContentPage
     void onSearchButton(object sender, EventArgs e) {
         vm.Source = vm.UrlText;
     }
-    private void MyWebView_JavaScriptAction(object sender, Controls.JavaScriptActionEventArgs e)
+    private void MyWebView_JavaScriptActionHandler(object sender, Controls.JavaScriptActionEventArgs e)
     {
-		Dispatcher.Dispatch(() =>
+        Dispatcher.Dispatch(() =>
 		{
-            //DisplayAlert("Data from Javascript", e.Payload, "OK");
-            jsAction.ProcessMessage(e.Payload);
+            jsActionHandler.ProcessMessage(e.Payload, ((HybridWebView)sender).Handler);
         });
     }
 }

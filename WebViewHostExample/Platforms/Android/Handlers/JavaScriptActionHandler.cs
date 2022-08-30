@@ -1,10 +1,15 @@
 ﻿using Android.Content;
 using Android.Provider;
 using Android.Webkit;
+using Java.Nio.Channels;
+using Microsoft.Maui.Handlers;
+using Microsoft.Maui.Platform;
+using WebViewHostExample.Platforms.Droid.Renderers;
 
 namespace WebViewHostExample.Controls {
-    internal partial class JavaScriptAction {
-        public void ProcessMessage(string message) {
+    public partial class JavaScriptActionHandler {
+        public void ProcessMessage(string message, IViewHandler handler) {
+            ((HybridWebViewHandler)handler).PlatformView.EvaluateJavascript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", null);
             if (message.StartsWith("Download:")) {
                 //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
                 int minePos = message.IndexOf(",mimeType:");
@@ -29,6 +34,8 @@ namespace WebViewHostExample.Controls {
                 intent.SetDataAndType(url, "*/*");
                 intent.SetAction(Intent.ActionGetContent);
                 Platform.CurrentActivity.StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
+            } else {
+                Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
         }
     }

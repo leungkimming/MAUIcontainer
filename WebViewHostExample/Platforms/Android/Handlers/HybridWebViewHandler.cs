@@ -17,12 +17,14 @@ using static Android.Net.Http.SslCertificate;
 using Microsoft.Extensions.DependencyInjection;
 using Java.Net;
 using Java.Lang;
+using Android.Views;
+using Microsoft.Maui.Controls;
 
 namespace WebViewHostExample.Platforms.Droid.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, Android.Webkit.WebView> {
         public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
 
-        const string JavascriptFunction = "function invokeCSharpAction(data){jsBridge.invokeAction(data);} location.host;";
+        const string JavascriptFunction = "function invokeCSharpAction(data){jsBridge.invokeAction(data);}";
 
         private JSBridge jsBridgeHandler;
         public JavascriptWebViewClient _JSclient;
@@ -85,7 +87,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             } catch { }
         }
     }
-    public class CustomWebChromeClient : WebChromeClient {
+    public class CustomWebChromeClient : WebChromeClient, IValueCallback {
         public HybridWebViewHandler _handler;
         public IValueCallback _callback;
         public CustomWebChromeClient(HybridWebViewHandler handler) {
@@ -111,6 +113,8 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         }
         public override bool OnShowFileChooser(Android.Webkit.WebView webView, IValueCallback filePathCallback,
             FileChooserParams fileChooserParams) {
+
+            webView.EvaluateJavascript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", this);
             _callback = filePathCallback;
             MainActivity.handler = doCallback;
             Intent intent = new Intent(Intent.ActionPick);
@@ -119,8 +123,12 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             _handler.Services.GetService<Activity>().StartActivityForResult(Intent.CreateChooser(intent, "Select File to Upload"), 1);
             return true;
         }
+        public void OnReceiveValue(Java.Lang.Object result) {
+            Microsoft.Maui.Controls.Application.Current.MainPage
+                .DisplayAlert("Warning", $"You are uploading file to the ({result.ToString().Trim('"')}) environment", "Ok");
+        }
     }
-    public class JavascriptWebViewClient : WebViewClient, IValueCallback {
+    public class JavascriptWebViewClient : WebViewClient {
         string _javascript;
         string user = "";
         string pw = "";
@@ -132,14 +140,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         }
         public override void OnPageStarted(Android.Webkit.WebView view, string url, Bitmap favicon) {
             base.OnPageStarted(view, url, favicon);
-            view.EvaluateJavascript(_javascript, this);
-        }
-        public async void OnReceiveValue(Java.Lang.Object result) {
-            string host = ((string)result).Trim('"');
-            if (!host.StartsWith("192.168.1.136")) {
-                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Should not logon untrusted server!", "Quit");
-                Microsoft.Maui.Controls.Application.Current.Quit();
-            }
+            view.EvaluateJavascript(_javascript, null);
         }
 #if DEBUG
         public override void OnReceivedSslError(global::Android.Webkit.WebView view, SslErrorHandler handler, SslError error) {
@@ -163,31 +164,6 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
                 Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new Login());
             }
             count++;
-        }
-        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, Android.Webkit.IWebResourceRequest request) {
-            if (request.Url.ToString() != org_Url) {
-                string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
-                    "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
-                    "xhr.responseType = 'blob';" +
-                    "xhr.onload = function(e) {" +
-                    "    if (this.status == 200) {" +
-                    "        var blobPdf = this.response;" +
-                    "        var fileName = this.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];" +
-                    "        var mimetype = this.getResponseHeader('content-disposition');" +
-                    "        var reader = new FileReader();" +
-                    "        reader.readAsDataURL(blobPdf);" +
-                    "        reader.onloadend = function() {" +
-                    "            base64data = reader.result.split(';base64,')[1];" +
-                    "            savetoMAUI(base64data, mimetype, fileName)" +
-                    "        }" +
-                    "    }" +
-                    "};" +
-                    "xhr.send();";
-                view.LoadUrl(_javascript);
-                return true;
-            } else {
-                return false;
-            }
         }
     }
 
