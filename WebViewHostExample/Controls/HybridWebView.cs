@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Text.Json;
+
 
 namespace WebViewHostExample.Controls {
     public class SourceChangedEventArgs : EventArgs {
@@ -80,6 +83,21 @@ namespace WebViewHostExample.Controls {
 
         public void InvokeAction(string data) {
             JavaScriptAction?.Invoke(this, new JavaScriptActionEventArgs(data));
+        }
+    }
+    public static class BlazorCallHelper {
+        public class CallMAUIjson {
+            public string method { get; set; }
+            public string promiseId { get; set; }
+            public string args { get; set; }
+        }
+        public static string callMAUIhandler(string args, out string promiseId) {
+            CallMAUIjson callMAUIjson = JsonSerializer.Deserialize<CallMAUIjson>(args);
+            promiseId = callMAUIjson.promiseId;
+            return (string)typeof(BlazorCallHelper).GetMethod(callMAUIjson.method).Invoke(null, new object[] { callMAUIjson.args });
+        }
+        public static string getToken(string args) {
+            return $"I recieved \"{args}\" from you";
         }
     }
 }

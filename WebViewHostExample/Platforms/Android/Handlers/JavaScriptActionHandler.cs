@@ -9,7 +9,8 @@ using WebViewHostExample.Platforms.Droid.Renderers;
 namespace WebViewHostExample.Controls {
     public partial class JavaScriptActionHandler {
         public void ProcessMessage(string message, IViewHandler handler) {
-            ((HybridWebViewHandler)handler).PlatformView.EvaluateJavascript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", null);
+            var webview = ((HybridWebViewHandler)handler).PlatformView;
+
             if (message.StartsWith("Download:")) {
                 //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
                 int minePos = message.IndexOf(",mimeType:");
@@ -34,6 +35,12 @@ namespace WebViewHostExample.Controls {
                 intent.SetDataAndType(url, "*/*");
                 intent.SetAction(Intent.ActionGetContent);
                 Platform.CurrentActivity.StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
+
+            } else if (message.StartsWith("callMAUI:")) {
+                string promiseId;
+                string result = BlazorCallHelper.callMAUIhandler(message.Substring(9, message.Length - 9)!, out promiseId);
+                webview.EvaluateJavascript($"resolvePromise('{promiseId}', '{result}', null)", null);
+
             } else {
                 Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }

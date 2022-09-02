@@ -3,16 +3,21 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Handlers;
 using WebKit;
 using WebViewHostExample.Platforms.iOS.Renderers;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Maui.Platform;
 
 namespace WebViewHostExample.Controls {
     public partial class JavaScriptActionHandler {
         public void ProcessMessage(string message, IViewHandler handler) {
-            WKJavascriptEvaluationResult callback = (NSObject result, NSError err) => {
-                Application.Current.MainPage.DisplayAlert("Warning", $"You are downloading from the ({result.ToString()})  environment ", "Ok");
-            };
-            ((HybridWebViewHandler)handler).PlatformView.EvaluateJavaScript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", callback);
+            var webview = ((HybridWebViewHandler)handler).PlatformView;
 
             if (message.StartsWith("Download:")) {
+                WKJavascriptEvaluationResult callback = (NSObject result, NSError err) => {
+                    Application.Current.MainPage.DisplayAlert("Warning", $"You are downloading from the ({result.ToString()})  environment ", "Ok");
+                };
+                webview.EvaluateJavaScript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", callback);
                 //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
                 int minePos = message.IndexOf(",mimeType:");
                 int base64Pos = message.IndexOf(",base64:");
@@ -24,6 +29,13 @@ namespace WebViewHostExample.Controls {
                 byte[] pdfAsBytes = Convert.FromBase64String(base64);
                 File.WriteAllBytes(dwldsPath, pdfAsBytes);
                 Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(dwldsPath));
+            } else if (message.StartsWith("callMAUI:")) {
+                string promiseId;
+                string result = BlazorCallHelper.callMAUIhandler(message.Substring(9, message.Length - 9)!, out promiseId);
+                webview.EvaluateJavaScript($"resolvePromise('{promiseId}', '{result}', null)", null);
+
+            } else {
+                Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
         }
     }
