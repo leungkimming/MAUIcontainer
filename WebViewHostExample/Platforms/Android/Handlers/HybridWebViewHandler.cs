@@ -165,6 +165,31 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             }
             count++;
         }
+        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, Android.Webkit.IWebResourceRequest request) {
+            if (request.Url.ToString() != org_Url) {
+                string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
+                    "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
+                    "xhr.responseType = 'blob';" +
+                    "xhr.onload = function(e) {" +
+                    "    if (this.status == 200) {" +
+                    "        var blobPdf = this.response;" +
+                    "        var fileName = this.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];" +
+                    "        var mimetype = this.getResponseHeader('content-disposition');" +
+                    "        var reader = new FileReader();" +
+                    "        reader.readAsDataURL(blobPdf);" +
+                    "        reader.onloadend = function() {" +
+                    "            base64data = reader.result.split(';base64,')[1];" +
+                    "            savetoMAUI(base64data, mimetype, fileName)" +
+                    "        }" +
+                    "    }" +
+                    "};" +
+                    "xhr.send();";
+                view.LoadUrl(_javascript);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public class JSBridge : Java.Lang.Object {
