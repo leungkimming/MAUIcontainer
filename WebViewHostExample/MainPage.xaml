@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:WebViewHostExample.Controls"
     >
 
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -20,13 +21,14 @@
             <Entry BackgroundColor="Transparent" Placeholder="Enter Url"  
                 Text="{Binding UrlText}" Margin="4,0" x:Name="Url" PlaceholderColor="Gray" />
         </Grid>
-        <Button Margin="1,1" Grid.Row="0" Grid.Column="1" FontSize="12" Text="Go" FontFamily="OpenSansBold" Clicked="onSearchButton"  />
+        <Button Margin="1,1" Grid.Row="0" Grid.Column="1" FontSize="12" Text="Go" 
+                FontFamily="OpenSansBold" Clicked="onSearchButton"  />
         <ScrollView x:Name="scrollView"
                 Grid.Row="1"
                 Grid.ColumnSpan="2"
                 VerticalOptions="FillAndExpand" 
-                VerticalScrollBarVisibility="Default"
-                HorizontalScrollBarVisibility="Default">
+                VerticalScrollBarVisibility="Always"
+                HorizontalScrollBarVisibility="Always">
             <controls:HybridWebView
                 x:Name="MyWebView"
                 Grid.Row="0" 

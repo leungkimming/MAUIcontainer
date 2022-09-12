@@ -4,13 +4,14 @@ using Android.Webkit;
 using Java.Nio.Channels;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
+using WebViewHostExample.Common;
 using WebViewHostExample.Platforms.Droid.Renderers;
 
 namespace WebViewHostExample.Controls {
     public partial class JavaScriptActionHandler {
-        public void ProcessMessage(string message, IViewHandler handler) {
+        public void ProcessMessage(string message, IViewHandler _handler) {
+            handler = _handler;
             var webview = ((HybridWebViewHandler)handler).PlatformView;
-
             if (message.StartsWith("Download:")) {
                 //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
                 int minePos = message.IndexOf(",mimeType:");
@@ -35,15 +36,15 @@ namespace WebViewHostExample.Controls {
                 intent.SetDataAndType(url, "*/*");
                 intent.SetAction(Intent.ActionGetContent);
                 Platform.CurrentActivity.StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
-
             } else if (message.StartsWith("callMAUI:")) {
-                string promiseId;
-                string result = BlazorCallHelper.callMAUIhandler(message.Substring(9, message.Length - 9)!, out promiseId);
-                webview.EvaluateJavascript($"resolvePromise('{promiseId}', '{result}', null)", null);
-
+                BlazorCallHelper.callMAUIhandler(ResolveRromise, message.Substring(9, message.Length - 9)!);
             } else {
                 Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
+        }
+        public void ResolveRromise(string promiseId, string result) {
+            var webview = ((HybridWebViewHandler)handler).PlatformView;
+            webview.EvaluateJavascript($"resolvePromise('{promiseId}', '{result}', null)", null);
         }
     }
 }

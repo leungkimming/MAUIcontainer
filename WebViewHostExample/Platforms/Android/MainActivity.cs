@@ -6,6 +6,11 @@ using Android.Webkit;
 using Java.IO;
 using Android.Content;
 using Newtonsoft.Json;
+using Android.Runtime;
+using Microsoft.Identity.Client;
+using Plugin.Fingerprint;
+using Android.Views;
+using Plugin.Fingerprint.Abstractions;
 
 namespace WebViewHostExample;
 
@@ -13,6 +18,7 @@ namespace WebViewHostExample;
 public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
+    public static MainActivity MainActivityInstance { get; private set; }
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
         if ((requestCode == 1) && handler != null) {
             if ((resultCode == Result.Ok) && (data != null)) {
@@ -23,5 +29,11 @@ public class MainActivity : MauiAppCompatActivity {
             }
             handler = null;
         }
+        AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
+    }
+    protected override void OnCreate(Bundle savedInstanceState) {
+        base.OnCreate(savedInstanceState);
+        CrossFingerprint.SetCurrentActivityResolver(() => this);
+        MainActivityInstance = this;
     }
 }

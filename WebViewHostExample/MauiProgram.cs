@@ -33,8 +33,6 @@ public static class MauiProgram
             {
                 handlers.AddHandler(typeof(HybridWebView), typeof(HybridWebViewHandler));
             });
-            ;
-
 
         return builder.Build();
     }
