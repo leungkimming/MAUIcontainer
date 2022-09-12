@@ -6,9 +6,9 @@ using Android.OS;
 using Android.Provider;
 using Android.Runtime;
 using Android.Util;
-using Android.Webkit;
+using AndroidWeb= Android.Webkit;
 using Android.Widget;
-using Android.Net;
+using AndroidNet=Android.Net;
 using Java.Interop;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Handlers;
@@ -21,7 +21,7 @@ using Android.Views;
 using Microsoft.Maui.Controls;
 
 namespace WebViewHostExample.Platforms.Droid.Renderers {
-    public class HybridWebViewHandler : ViewHandler<IHybridWebView, Android.Webkit.WebView> {
+    public class HybridWebViewHandler : ViewHandler<IHybridWebView, AndroidWeb.WebView> {
         public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
 
         const string JavascriptFunction = "function invokeMAUIAction(data){jsBridge.invokeAction(data);}";
@@ -30,6 +30,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         public JavascriptWebViewClient _JSclient;
 
         public HybridWebViewHandler() : base(HybridWebViewMapper) {
+            
         }
 
         private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
@@ -39,8 +40,8 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             }
         }
 
-        protected override Android.Webkit.WebView CreatePlatformView() {
-            var webView = new Android.Webkit.WebView(Context);
+        protected override AndroidWeb.WebView CreatePlatformView() {
+            var webView = new AndroidWeb.WebView(Context);
             jsBridgeHandler = new JSBridge(this);
 
             webView.Settings.JavaScriptEnabled = true;
@@ -54,10 +55,15 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             webView.SetWebViewClient(_JSclient);
             webView.AddJavascriptInterface(jsBridgeHandler, "jsBridge");
             webView.SetWebChromeClient(new CustomWebChromeClient(this));
+            webView.ClearFormData();
+            webView.ClearHistory();
+            webView.ClearMatches();
+            webView.ClearCache(true);
+            //webView.DebugDump();
             return webView;
         }
 
-        protected override void ConnectHandler(Android.Webkit.WebView platformView) {
+        protected override void ConnectHandler(AndroidWeb.WebView platformView) {
             base.ConnectHandler(platformView);
 
             if (VirtualView.Source != null) {
@@ -67,7 +73,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             VirtualView.SourceChanged += VirtualView_SourceChanged;
         }
 
-        protected override void DisconnectHandler(Android.Webkit.WebView platformView) {
+        protected override void DisconnectHandler(AndroidWeb.WebView platformView) {
             base.DisconnectHandler(platformView);
 
             VirtualView.SourceChanged -= VirtualView_SourceChanged;
@@ -77,7 +83,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             jsBridgeHandler = null;
         }
 
-        private static void LoadSource(WebViewSource source, Android.Webkit.WebView control) {
+        private static void LoadSource(WebViewSource source, AndroidWeb.WebView control) {
             try {
                 if (source is HtmlWebViewSource html) {
                     control.LoadDataWithBaseURL(html.BaseUrl, html.Html, null, "charset=UTF-8", null);
@@ -87,31 +93,31 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             } catch { }
         }
     }
-    public class CustomWebChromeClient : WebChromeClient, IValueCallback {
+    public class CustomWebChromeClient : AndroidWeb.WebChromeClient, AndroidWeb.IValueCallback {
         public HybridWebViewHandler _handler;
-        public IValueCallback _callback;
+        public AndroidWeb.IValueCallback _callback;
         public CustomWebChromeClient(HybridWebViewHandler handler) {
             _handler = handler;
         }
-        public override bool OnCreateWindow(Android.Webkit.WebView view, bool isDialog, bool isUserGesture, Message resultMsg) {
+        public override bool OnCreateWindow(AndroidWeb.WebView view, bool isDialog, bool isUserGesture, Message resultMsg) {
             var TestResult = view.GetHitTestResult();
             string data = TestResult.Extra;
             Context context = view.Context;
-            var uri = Android.Net.Uri.Parse(data);
+            var uri = AndroidNet.Uri.Parse(data);
             Intent browserIntent = new Intent(Intent.ActionView, uri);
             context.StartActivity(browserIntent);
             return false;
         }
-        public void doCallback(Android.Net.Uri uri) {
-            Android.Net.Uri[] files = new Android.Net.Uri[1];
+        public void doCallback(AndroidNet.Uri uri) {
+            AndroidNet.Uri[] files = new AndroidNet.Uri[1];
             if (uri != null) {
                 files[0] = uri;
             } else {
-                files = new Android.Net.Uri[] { };
+                files = new AndroidNet.Uri[] { };
             }
             _callback.OnReceiveValue(files);
         }
-        public override bool OnShowFileChooser(Android.Webkit.WebView webView, IValueCallback filePathCallback,
+        public override bool OnShowFileChooser(AndroidWeb.WebView webView, AndroidWeb.IValueCallback filePathCallback,
             FileChooserParams fileChooserParams) {
 
             webView.EvaluateJavascript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", this);
@@ -128,7 +134,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
                 .DisplayAlert("Warning", $"You are uploading file to the ({result.ToString().Trim('"')}) environment", "Ok");
         }
     }
-    public class JavascriptWebViewClient : WebViewClient {
+    public class JavascriptWebViewClient : AndroidWeb.WebViewClient {
         string _javascript;
         string user = "";
         string pw = "";
@@ -138,16 +144,16 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         public JavascriptWebViewClient(string javascript) {
             _javascript = javascript;
         }
-        public override void OnPageStarted(Android.Webkit.WebView view, string url, Bitmap favicon) {
+        public override void OnPageStarted(AndroidWeb.WebView view, string url, Bitmap favicon) {
             base.OnPageStarted(view, url, favicon);
             view.EvaluateJavascript(_javascript, null);
         }
 #if DEBUG
-        public override void OnReceivedSslError(global::Android.Webkit.WebView view, SslErrorHandler handler, SslError error) {
+        public override void OnReceivedSslError(global::Android.Webkit.WebView view, AndroidWeb.SslErrorHandler handler, SslError error) {
             handler.Proceed();//this line make ssl error handle so the webview show the page even with certificate errors
         }
 #endif
-        public override void OnReceivedHttpAuthRequest(global::Android.Webkit.WebView? view, HttpAuthHandler? handler, string? host, string? realm) {
+        public override void OnReceivedHttpAuthRequest(global::Android.Webkit.WebView? view, AndroidWeb.HttpAuthHandler? handler, string? host, string? realm) {
             if (user != "") {
                 handler.Proceed(user, pw);
                 count = 0;
@@ -165,7 +171,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             }
             count++;
         }
-        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, Android.Webkit.IWebResourceRequest request) {
+        public override bool ShouldOverrideUrlLoading(AndroidWeb.WebView view, AndroidWeb.IWebResourceRequest request) {
             if (request.Url.ToString() != org_Url) {
                 string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
                     "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
@@ -199,7 +205,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             hybridWebViewRenderer = new WeakReference<HybridWebViewHandler>(hybridRenderer);
         }
 
-        [JavascriptInterface]
+        [AndroidWeb.JavascriptInterface]
         [Export("invokeAction")]
         public void InvokeAction(string data) {
             HybridWebViewHandler hybridRenderer;

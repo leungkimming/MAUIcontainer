@@ -8,11 +8,10 @@ using System.Runtime.Versioning;
 using WebKit;
 using WebViewHostExample.Controls;
 
-namespace WebViewHostExample.Platforms.iOS.Renderers
-{
+namespace WebViewHostExample.Platforms.iOS.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, WKWebView> {
         public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
-        
+
         const string JavaScriptFunction = "function invokeMAUIAction(data){window.webkit.messageHandlers.invokeAction.postMessage(data);}";
 
         private WKUserContentController userController;
@@ -44,14 +43,13 @@ namespace WebViewHostExample.Platforms.iOS.Renderers
             _delegate = new WKWebViewDelegate();
             webView.NavigationDelegate = _delegate;
 
-            return webView;            
+            return webView;
         }
 
         protected override void ConnectHandler(WKWebView platformView) {
             base.ConnectHandler(platformView);
 
-            if (VirtualView.Source != null)
-            {
+            if (VirtualView.Source != null) {
                 LoadSource(VirtualView.Source, PlatformView);
             }
 
@@ -65,19 +63,16 @@ namespace WebViewHostExample.Platforms.iOS.Renderers
 
             userController.RemoveAllUserScripts();
             userController.RemoveScriptMessageHandler("invokeAction");
-        
+
             jsBridgeHandler?.Dispose();
             jsBridgeHandler = null;
         }
 
 
         private static void LoadSource(WebViewSource source, WKWebView control) {
-            if (source is HtmlWebViewSource html)
-            {
+            if (source is HtmlWebViewSource html) {
                 control.LoadHtmlString(html.Html, new NSUrl(html.BaseUrl ?? "http://localhost", true));
-            }
-            else if (source is UrlWebViewSource url)
-            {
+            } else if (source is UrlWebViewSource url) {
                 control.LoadRequest(new NSUrlRequest(new NSUrl(url.Url)));
             }
         }
@@ -125,12 +120,12 @@ namespace WebViewHostExample.Platforms.iOS.Renderers
         [SupportedOSPlatform("ios14.5")]
         public override void DecidePolicy(WKWebView webView, WKNavigationAction navigationAction, Action<WKNavigationActionPolicy> decisionHandler) {
             var url = navigationAction.Request.Url.AbsoluteString;
-            if ((navigationAction.NavigationType == WKNavigationType.LinkActivated) || 
+            if ((navigationAction.NavigationType == WKNavigationType.LinkActivated) ||
                     navigationAction.ShouldPerformDownload ||
                     ((navigationAction.NavigationType == WKNavigationType.Other) && (url != org_Url))) {
                 decisionHandler(WKNavigationActionPolicy.Cancel);
                 Browser.Default.OpenAsync(navigationAction.Request.Url, BrowserLaunchMode.SystemPreferred);
-            } else 
+            } else
                 decisionHandler(WKNavigationActionPolicy.Allow);
         }
     }

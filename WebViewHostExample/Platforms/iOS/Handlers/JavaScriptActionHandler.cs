@@ -7,10 +7,13 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Maui.Platform;
+using WebViewHostExample.Common;
+using System.Reflection.Metadata;
 
 namespace WebViewHostExample.Controls {
     public partial class JavaScriptActionHandler {
-        public void ProcessMessage(string message, IViewHandler handler) {
+        public void ProcessMessage(string message, IViewHandler _handler) {
+            handler = _handler;
             var webview = ((HybridWebViewHandler)handler).PlatformView;
 
             if (message.StartsWith("Download:")) {
@@ -30,13 +33,14 @@ namespace WebViewHostExample.Controls {
                 File.WriteAllBytes(dwldsPath, pdfAsBytes);
                 Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(dwldsPath));
             } else if (message.StartsWith("callMAUI:")) {
-                string promiseId;
-                string result = BlazorCallHelper.callMAUIhandler(message.Substring(9, message.Length - 9)!, out promiseId);
-                webview.EvaluateJavaScript($"resolvePromise('{promiseId}', '{result}', null)", null);
-
+                BlazorCallHelper.callMAUIhandler(ResolveRromise, message.Substring(9, message.Length - 9)!);
             } else {
                 Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
+        }
+        public void ResolveRromise(string promiseId, string result) {
+            var webview = ((HybridWebViewHandler)handler).PlatformView;
+            webview.EvaluateJavaScript($"resolvePromise('{promiseId}', '{result}', null)", null);
         }
     }
 }

@@ -46,6 +46,23 @@
 		<string>pdf</string>
 		<string>file</string>
 		<string>com.adobe.Adobe-Reader</string>
+		<string>msauthv2</string>
+		<string>msauthv3</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>MAUIdemo://auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>msal48ce7928-5eea-415c-a209-35e39bef6b2e</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Need your face to unlock magic things</string>
 </dict>
 </plist>

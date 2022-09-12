@@ -3,7 +3,7 @@
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
-
+using Microsoft.Identity.Client;
 using UIKit;
 
 namespace WebViewHostExample
@@ -22,6 +22,10 @@ namespace WebViewHostExample
         {
             //AppCenter.Start("1518793c-b3c7-47e9-a6e8-3c8447489246", typeof(Analytics), typeof(Crashes));
             return base.FinishedLaunching(application, launchOptions);
+        }
+        public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
+            AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
+            return base.OpenUrl(app, url, options);
         }
 
     }
