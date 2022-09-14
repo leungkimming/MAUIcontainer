@@ -1,11 +1,25 @@
-﻿namespace WebViewHostExample;
+﻿using Plugin.FirebasePushNotification;
 
-public partial class App : Application
-{
-	public App()
-	{
-		InitializeComponent();
+namespace WebViewHostExample;
 
-		MainPage = new AppShell();
-	}
+public partial class App : Application {
+    public App() {
+        InitializeComponent();
+
+        CrossFirebasePushNotification.Current.OnTokenRefresh += (s, p) => {
+            System.Diagnostics.Debug.WriteLine($"TOKEN : {p.Token}");
+        };
+        CrossFirebasePushNotification.Current.OnNotificationReceived += (s, p) => {
+            System.Diagnostics.Debug.WriteLine("Received");
+            MessagingCenter.Send<App, string>(this, "PushNotification", p.Data["body"].ToString());
+        };
+        CrossFirebasePushNotification.Current.OnNotificationOpened += (s, p) => {
+            System.Diagnostics.Debug.WriteLine("Opened");
+            foreach (var data in p.Data) {
+                System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
+            }
+        };
+
+        MainPage = new AppShell();
+    }
 }

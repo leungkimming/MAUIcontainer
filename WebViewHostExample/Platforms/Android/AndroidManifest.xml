@@ -17,4 +17,5 @@
 			<action android:name="android.media.action.IMAGE_CAPTURE" />
 		</intent>
 	</queries>
+	<uses-sdk android:minSdkVersion="21" />
 </manifest>

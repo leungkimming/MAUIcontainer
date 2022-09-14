@@ -20,7 +20,7 @@ public partial class MainPage : ContentPage {
 
         MyWebView.JavaScriptAction += MyWebView_JavaScriptActionHandler;
         //vm.UrlText = "https://192.168.1.136:44355/dotnet6EAA/";
-        vm.UrlText = "https://192.168.1.136:7196/";
+        vm.UrlText = "https://192.168.0.30:7196/";
         //vm.UrlText = "https://dotnet6client.z23.web.core.windows.net/";
 
         jsActionHandler = new JavaScriptActionHandler();

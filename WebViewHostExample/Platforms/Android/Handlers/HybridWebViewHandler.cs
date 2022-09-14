@@ -147,6 +147,10 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         public override void OnPageStarted(AndroidWeb.WebView view, string url, Bitmap favicon) {
             base.OnPageStarted(view, url, favicon);
             view.EvaluateJavascript(_javascript, null);
+            MessagingCenter.Subscribe<App, string>(this, "PushNotification", (sender, arg) => {
+                MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavascript(
+                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg}' );", null));
+            });
         }
 #if DEBUG
         public override void OnReceivedSslError(global::Android.Webkit.WebView view, AndroidWeb.SslErrorHandler handler, SslError error) {

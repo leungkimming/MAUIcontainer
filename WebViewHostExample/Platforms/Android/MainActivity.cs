@@ -11,6 +11,7 @@ using Microsoft.Identity.Client;
 using Plugin.Fingerprint;
 using Android.Views;
 using Plugin.Fingerprint.Abstractions;
+using Plugin.FirebasePushNotification;
 
 namespace WebViewHostExample;
 
@@ -18,6 +19,7 @@ namespace WebViewHostExample;
 public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
+
     public static MainActivity MainActivityInstance { get; private set; }
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
         if ((requestCode == 1) && handler != null) {
@@ -34,6 +36,7 @@ public class MainActivity : MauiAppCompatActivity {
     protected override void OnCreate(Bundle savedInstanceState) {
         base.OnCreate(savedInstanceState);
         CrossFingerprint.SetCurrentActivityResolver(() => this);
+        FirebasePushNotificationManager.ProcessIntent(this, Intent);
         MainActivityInstance = this;
     }
 }
