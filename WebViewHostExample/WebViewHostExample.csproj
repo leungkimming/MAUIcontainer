@@ -50,6 +50,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\google-services.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <GoogleServicesJson Include="Platforms\Android\google-services.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Include="Platforms\Android\Handlers\HybridWebViewHandler.cs" />
 	</ItemGroup>
 
@@ -60,6 +68,7 @@
 	  <PackageReference Include="Microsoft.Identity.Client" Version="4.46.0-preview2" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
+	  <PackageReference Include="Plugin.FirebasePushNotification" Version="3.4.25" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
 	</ItemGroup>
 
@@ -79,6 +88,12 @@
 	  <MauiXaml Update="Login.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+	  <PackageReference Include="Xamarin.Firebase.Messaging"  Version="123.0.7">
+	    <Version>123.0.7</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>

@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "175690784260",
+    "firebase_url": "https://batman-eebc7.firebaseio.com",
+    "project_id": "batman-eebc7",
+    "storage_bucket": "batman-eebc7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175690784260:android:e265b4ee46f60ed24c9f51",
+        "android_client_info": {
+          "package_name": "com.batman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzGC1tRYiT1qWeuxoqPIA0TUpuuGFDTzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175690784260:android:1bbf0a2702b9207a4c9f51",
+        "android_client_info": {
+          "package_name": "com.companyname.webviewhostexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzGC1tRYiT1qWeuxoqPIA0TUpuuGFDTzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
