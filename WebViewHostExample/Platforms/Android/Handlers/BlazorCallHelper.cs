@@ -14,7 +14,7 @@ namespace WebViewHostExample.Common {
         [SupportedOSPlatform("android31.0")]
         public static void getFingerPrint(string reason) {
             var message = "";
-            MainActivity.MainActivityInstance.RunOnUiThread(async () => {
+            MainThread.InvokeOnMainThreadAsync(async () => {
                 CancellationTokenSource _cancel = new CancellationTokenSource(); //new CancellationTokenSource(TimeSpan.FromSeconds(10))
                 var dialogConfig = new AuthenticationRequestConfiguration("MAUIContainer", reason) {
                     CancelTitle = "Cancel",

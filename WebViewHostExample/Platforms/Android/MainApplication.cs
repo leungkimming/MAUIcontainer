@@ -36,8 +36,7 @@ public class MainApplication : MauiApplication
 #endif
 
         //Handle notification when app is closed here
-        CrossFirebasePushNotification.Current.OnNotificationReceived += (s, p) =>
-        {
+        CrossFirebasePushNotification.Current.OnNotificationReceived += (s, p) => {
         };
     }
 }
