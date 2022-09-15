@@ -20,7 +20,6 @@ public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
 
-    public static MainActivity MainActivityInstance { get; private set; }
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
         if ((requestCode == 1) && handler != null) {
             if ((resultCode == Result.Ok) && (data != null)) {
@@ -37,6 +36,5 @@ public class MainActivity : MauiAppCompatActivity {
         base.OnCreate(savedInstanceState);
         CrossFingerprint.SetCurrentActivityResolver(() => this);
         FirebasePushNotificationManager.ProcessIntent(this, Intent);
-        MainActivityInstance = this;
     }
 }
