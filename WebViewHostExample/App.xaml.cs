@@ -18,6 +18,8 @@ public partial class App : Application {
             foreach (var data in p.Data) {
                 System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
             }
+            MainThread.BeginInvokeOnMainThread(() => Microsoft.Maui.Controls.Application.Current.MainPage
+                .DisplayAlert("Push Notification Open", $"{p.Data["body"].ToString()}", "Ok"));
         };
 
         MainPage = new AppShell();
