@@ -1,4 +1,4 @@
-# Run Blazor wasm in MAUI WebView
+# Run Blazor wasm in MAUI WebView [GitHub](https://github.com/leungkimming/MAUIcontainer)
 ## Goal
 Our goal is to freely load and run any Blazor wasm App hosted in any host within a MAUI native Android/IOS App in such a way that Blazor wasm Apps can have bi-directional communicaiton with the MAUI native App for functions, such as push notificaiton, Authentication, etc.
 ## Why
