@@ -27,17 +27,12 @@ public partial class MainPage : ContentPage {
         string token = BlazorCallHelper.getAADToken();
         if (token == null) {
             WebViewHostExample.App.Current.ModalPopping += LoadApp;
-            Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin());
+            Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin(true));
         } else {
             LoadApp(this, null);
         }
 
         jsActionHandler = new JavaScriptActionHandler();
-
-        //var pm = WebViewHostExample.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
-        //if (pm.Key != null && pm.Key == "PushNotification") {
-        //    vm.Source = vm.UrlText;
-        //}
     }
     void LoadApp(object sender, EventArgs e) {
         var pm = WebViewHostExample.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();

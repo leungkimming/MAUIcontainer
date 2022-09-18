@@ -3,12 +3,18 @@ using System.ComponentModel;
 
 namespace WebViewHostExample;
 
-public partial class AADLogin : ContentPage {
+public partial class AADLogin : ContentPage, INotifyPropertyChanged {
+    public bool isPush { get; set; }
     public AADLogin()
 	{
 		InitializeComponent();
+        useNTLMButton.IsVisible = false;
         var authService = new AuthService();
         getStatus();
+    }
+    public AADLogin(bool _isPush) : this() {
+        this.isPush = _isPush;
+        useNTLMButton.IsVisible = true;
     }
     async void getStatus() {
         var authService = new AuthService();
@@ -34,7 +40,10 @@ public partial class AADLogin : ContentPage {
                 "\nTenant: " + result.TenantId +
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
-            await Navigation.PopModalAsync();
+            Login.IsEnabled = false;
+            if (isPush) {
+                await Navigation.PopModalAsync();
+            }
         }
     }
     async void onLogout(object sender, EventArgs e) {
@@ -45,6 +54,11 @@ public partial class AADLogin : ContentPage {
         bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
         if (action) {
             Application.Current?.Quit();
+        }
+    }
+    async void useNTLM(object sender, EventArgs e) {
+        if (isPush) {
+            await Navigation.PopModalAsync();
         }
     }
 }
