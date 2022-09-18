@@ -1,4 +1,4 @@
-# Run Blazor wasm in MAUI WebView [GitHub](https://github.com/leungkimming/MAUIcontainer)
+# Run Blazor wasm in MAUI WebView ([GitHub](https://github.com/leungkimming/MAUIcontainer) )
 ## Goal
 Our goal is to freely load and run any Blazor wasm App hosted in any host within a MAUI native Android/IOS App in such a way that Blazor wasm Apps can have bi-directional communicaiton with the MAUI native App for functions, such as push notificaiton, Authentication, etc.
 ## Why
@@ -10,8 +10,8 @@ Our goal is to freely load and run any Blazor wasm App hosted in any host within
 * I need to thank Nathaniel Moschkin for his great project [mauiIbvieIxample](https://github.com/nmoschkin/mauiIbvieIxample), which gives me a good starting point to build my MAUIcontainer App.
 * BlazorWebView is not suitable because we have to bundle all the Blazor code inside the MAUI App and we cannot freely load any Blazor from any host.
 * MAUI WebView seems to be the only choice but WebView is just an HTML5 rendering engine without any UI implementations, such as navigation, file select for upload, download, etc. We have to implement them for both Android and IOS.
-* I demonstrated some of these implementations in this PoC and below are the explainations.
-* I will use our previous [Blazor wasm App PoC 'dotnet6EAA'](https://github.com/leungkimming/DotNet6EAA) as an example to run it in the PoC.
+* We demonstrated some of these implementations in this PoC and below are the explainations.
+* We will use our previous [Blazor wasm App PoC 'dotnet6EAA'](https://github.com/leungkimming/DotNet6EAA) as an example to run it in the PoC.
 # Give it a go
 ## Basic Development Environment Setup
 * Windows 10/11 Pro (Android emulators need hardware vitualization)
@@ -22,7 +22,8 @@ Our goal is to freely load and run any Blazor wasm App hosted in any host within
 * Download and able to run our MAUIcontainer PoC in both Android and IOS. You cannot run our Blazor wasm App inside MAUIcontainer yet.
 ## Additional Setup
 * First, you cannot browse to https://localhost in your Android/IOS because localhost is the address of your Android/IOS itself, not that of your PC.
-* I ended up using IP address (mime is 192.168.1.136) and you need to change it to that of your PC. In DOS prompt, run ipconfig.
+* We ended up using IP address (mime is 192.168.0.30) and you need to change it to that of your PC. In DOS prompt, run ipconfig.
+* Because dotnet6EAA is using Windows Authentication, you must use IIS Express and not .NET 6's Kestrel web server.
 * Add a firewall inbound rule to allow inbound traffic to reach IIS Express.
 ![img](https://raw.githubusercontent.com/wiki/leungkimming/MAUIcontainer/images/firewall.png)
 * Update configuration of Blazor wasm App's IIS Express applicationhost.config<br>
@@ -40,6 +41,21 @@ Our goal is to freely load and run any Blazor wasm App hosted in any host within
         </bindings>
       </site>
 ```
+* Change API's Launchsettings.json 'applicationUrl' to your IP address
+```
+    "API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      //"launchUrl": "swagger",
+      "launchUrl": "https://localhost:44355/dotnet6EAA",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+      "applicationUrl": "https://localhost:44355;http://localhost:28225;https://192.168.0.30:44355",
+      "dotnetRunMessages": true
+    }
+```
 * Then, you need to run VS2022 as ADMINISTRATOR and run the dotnet6EAA solution. IIS Express need elevated privilege to bind to non localhost IP.
 * If you deploy dotnet6EAA to a IIS server, then, you can simply use IIS server's host name in the MAUIcontainer App and no need to configure IIS Express.
 * Note that you cannot debug dotnet6EAA while running in the MAUIcontainer because there is no communication betIen your Android/IOS emulator and VS2022. You shoud debug dotnet6EAA in the browser launched by VS2022.
@@ -52,8 +68,9 @@ public MainPage() {
     BindingContext = vm;
 
     MyWebView.JavaScriptAction += MyWebView_JavaScriptAction;
-    vm.UrlText = "https://192.168.1.136:44355/dotnet6EAA/";
+    vm.UrlText = "https://192.168.0.30:44355/dotnet6EAA/";
 ```
+* Start debug MAUIcontainer. When prompt for logon, opt for Windows Authentication
 * Now, you can try to load dotnet6EAA by clicking MAUIcontainer's "GO" button.
 # The Solution
 ![img](https://raw.githubusercontent.com/wiki/leungkimming/MAUIcontainer/images/solution.png)
@@ -67,10 +84,12 @@ public MainPage() {
 * FileViewer acts as the second IOS WebView Tab while Android's WebView supports multiple windows. 
 ## Problems to be solved
 For the description of how to solve the below problems, please read the respective wiki.
-* Bi-directional communicaiton between Blazor App and MAUI App
-* Windows Authentication
-* Bypass SSL certificate error because of using IP address
-* Click on a link and open a new browser Tab
+* MAUI C# calling Blazor C# method
+* Blazor C# calling MAUI C# method (e.g. Fingerprint)
+* Bypass Issues during Development (SSL error, Windows Authen)
+* Click on a link to open a new browser Tab
 * Download a Telerik document
 * Using Telerik to upload a document
-* Download from Telerik Report
+* Download a Telerik Report
+* Azure Active Directory authentication in .NET MAUI
+* Push Notification

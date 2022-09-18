@@ -13,6 +13,8 @@
             </StackLayout>
             <Button Margin="0,15" Text="Login" FontFamily="OpenSansBold" Clicked="onLogin" x:Name="Login"  />
             <Button Margin="0,15" Text="Logout" FontFamily="OpenSansBold" Clicked="onLogout"  />
+            <Button Margin="100,100,0,0" Text="Opt for Windows Authentication" FontFamily="OpenSansBold" 
+                    Clicked="useNTLM" x:Name="useNTLMButton"/>
         </StackLayout>
     </Grid>
 </ContentPage>
