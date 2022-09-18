@@ -28,9 +28,9 @@ public class MainApplication : MauiApplication
             FirebasePushNotificationManager.DefaultNotificationChannelName = "General";
         }
         FirebaseApp.InitializeApp(this.ApplicationContext);
-        //If debug you should reset the token each time.
+        //If debug you should set to 'true' to reset token once and write down the token
 #if DEBUG
-        FirebasePushNotificationManager.Initialize(this, true);
+        FirebasePushNotificationManager.Initialize(this, false);
 #else
                FirebasePushNotificationManager.Initialize(this,false);
 #endif

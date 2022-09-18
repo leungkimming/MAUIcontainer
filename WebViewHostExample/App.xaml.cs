@@ -3,8 +3,10 @@
 namespace WebViewHostExample;
 
 public partial class App : Application {
+    public static Dictionary<string, string> MessageQueue { get; private set; }
     public App() {
         InitializeComponent();
+        MessageQueue = new Dictionary<string, string>();
 
         CrossFirebasePushNotification.Current.OnTokenRefresh += (s, p) => {
             System.Diagnostics.Debug.WriteLine($"TOKEN : {p.Token}");
@@ -18,8 +20,10 @@ public partial class App : Application {
             foreach (var data in p.Data) {
                 System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
             }
-            MainThread.BeginInvokeOnMainThread(() => Microsoft.Maui.Controls.Application.Current.MainPage
-                .DisplayAlert("Push Notification Open", $"{p.Data["body"].ToString()}", "Ok"));
+            MainThread.BeginInvokeOnMainThread(() => {
+                //Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Push Notification Open", $"{p.Data["body"].ToString()}", "Ok");
+                MessageQueue.Add("PushNotification", p.Data["body"].ToString());
+            });
         };
 
         MainPage = new AppShell();

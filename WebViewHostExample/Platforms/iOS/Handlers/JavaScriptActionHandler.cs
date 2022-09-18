@@ -33,12 +33,12 @@ namespace WebViewHostExample.Controls {
                 File.WriteAllBytes(dwldsPath, pdfAsBytes);
                 Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(dwldsPath));
             } else if (message.StartsWith("callMAUI:")) {
-                BlazorCallHelper.callMAUIhandler(ResolveRromise, message.Substring(9, message.Length - 9)!);
+                BlazorCallHelper.callMAUIhandler(ResolvePromise, message.Substring(9, message.Length - 9)!);
             } else {
                 Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
         }
-        public void ResolveRromise(string promiseId, string result) {
+        public void ResolvePromise(string promiseId, string result) {
             var webview = ((HybridWebViewHandler)handler).PlatformView;
             webview.EvaluateJavaScript($"resolvePromise('{promiseId}', '{result}', null)", null);
         }

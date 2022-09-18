@@ -1,9 +1,9 @@
 using Microsoft.Identity.Client;
+using System.ComponentModel;
 
 namespace WebViewHostExample;
 
-public partial class AADLogin : ContentPage
-{
+public partial class AADLogin : ContentPage {
     public AADLogin()
 	{
 		InitializeComponent();
@@ -19,8 +19,10 @@ public partial class AADLogin : ContentPage
                 "\nTenant: " + result.TenantId +
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
+            Login.IsEnabled = false;
         } else {
             Status.Text = "Status: Logout";
+            Login.IsEnabled = true;
         }
     }
     async void onLogin(object sender, EventArgs e) {
@@ -32,11 +34,17 @@ public partial class AADLogin : ContentPage
                 "\nTenant: " + result.TenantId +
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
+            await Navigation.PopModalAsync();
         }
     }
-    void onLogout(object sender, EventArgs e) {
+    async void onLogout(object sender, EventArgs e) {
         var authService = new AuthService();
         authService.LogoutAsync();
         Status.Text = "Status: Logout";
+        Login.IsEnabled = true;
+        bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
+        if (action) {
+            Application.Current?.Quit();
+        }
     }
 }

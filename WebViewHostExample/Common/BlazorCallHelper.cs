@@ -25,17 +25,28 @@ namespace WebViewHostExample.Common {
             promiseId = callMAUIjson.promiseId;
             typeof(BlazorCallHelper).GetMethod(callMAUIjson.method).Invoke(null, new object[] { callMAUIjson.args });
         }
-        public static void getToken(string args) {
+        public static string getAADToken() {
             var authService = new AuthService(); // most likely you will inject it in constructor, but for simplicity let's initialize it here
             string accessToken = null;
             var status = Task.Run(async () => await authService.LoginStatus()).Result;
             if (status != null) {
                 var result = authService.LoginAsync(CancellationToken.None).Result;
                 accessToken = result?.AccessToken;
-            } else {
-                Application.Current.MainPage.DisplayAlert("Error", "Please Login First", "Ok");
             }
+            return accessToken;
+        }
+        public static void getToken(string args) {
+            string accessToken = getAADToken();
             callback(promiseId, accessToken);
+        }
+        public static void getPMessage(string dummy) {
+            string pMessage = "";
+            var pm = WebViewHostExample.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
+            if (pm.Key != null && pm.Key == "PushNotification") {
+                pMessage = pm.Value;
+                WebViewHostExample.App.MessageQueue.Remove(pm.Key);
+            }
+            callback(promiseId, pMessage);
         }
     }
 }

@@ -37,12 +37,12 @@ namespace WebViewHostExample.Controls {
                 intent.SetAction(Intent.ActionGetContent);
                 Platform.CurrentActivity.StartActivityForResult(Intent.CreateChooser(intent, "Open Downloaded File"), 1);
             } else if (message.StartsWith("callMAUI:")) {
-                BlazorCallHelper.callMAUIhandler(ResolveRromise, message.Substring(9, message.Length - 9)!);
+                BlazorCallHelper.callMAUIhandler(ResolvePromise, message.Substring(9, message.Length - 9)!);
             } else {
                 Application.Current.MainPage.DisplayAlert("Message", message, "Ok");
             }
         }
-        public void ResolveRromise(string promiseId, string result) {
+        public void ResolvePromise(string promiseId, string result) {
             var webview = ((HybridWebViewHandler)handler).PlatformView;
             webview.EvaluateJavascript($"resolvePromise('{promiseId}', '{result}', null)", null);
         }

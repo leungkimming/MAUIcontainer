@@ -5,6 +5,7 @@ using Microsoft.Identity.Client;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using WebViewHostExample.Common;
 
 namespace WebViewHostExample;
 public partial class MainPage : ContentPage {
@@ -19,15 +20,30 @@ public partial class MainPage : ContentPage {
         BindingContext = vm;
 
         MyWebView.JavaScriptAction += MyWebView_JavaScriptActionHandler;
-        //vm.UrlText = "https://192.168.1.136:44355/dotnet6EAA/";
+        //vm.UrlText = "https://192.168.0.30:44355/dotnet6EAA/";
         vm.UrlText = "https://192.168.0.30:7196/";
         //vm.UrlText = "https://dotnet6client.z23.web.core.windows.net/";
 
-        jsActionHandler = new JavaScriptActionHandler();
-    }
+        string token = BlazorCallHelper.getAADToken();
+        if (token == null) {
+            WebViewHostExample.App.Current.ModalPopping += LoadApp;
+            Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin());
+        } else {
+            LoadApp(this, null);
+        }
 
-    protected override void OnParentSet() {
-        base.OnParentSet();
+        jsActionHandler = new JavaScriptActionHandler();
+
+        //var pm = WebViewHostExample.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
+        //if (pm.Key != null && pm.Key == "PushNotification") {
+        //    vm.Source = vm.UrlText;
+        //}
+    }
+    void LoadApp(object sender, EventArgs e) {
+        var pm = WebViewHostExample.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
+        if (pm.Key != null && pm.Key == "PushNotification") {
+            vm.Source = vm.UrlText;
+        }
     }
     void onSearchButton(object sender, EventArgs e) {
         vm.Source = vm.UrlText;
