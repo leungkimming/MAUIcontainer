@@ -27,17 +27,11 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         const string JavascriptFunction = "function invokeMAUIAction(data){jsBridge.invokeAction(data);}";
 
         private JSBridge jsBridgeHandler;
-        public JavascriptWebViewClient _JSclient;
-
-        public HybridWebViewHandler() : base(HybridWebViewMapper) {
-            
+        public HybridWebViewHandler() : base(HybridWebViewMapper) {            
         }
 
         private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
             LoadSource(e.Source, PlatformView);
-            if (e.Source is UrlWebViewSource url) {
-                _JSclient.org_Url = url.Url;
-            }
         }
 
         protected override AndroidWeb.WebView CreatePlatformView() {
@@ -51,8 +45,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             webView.Settings.DomStorageEnabled = true;
             webView.Settings.AllowFileAccessFromFileURLs = true;
             webView.Settings.DefaultTextEncodingName = "UTF-8";
-            _JSclient = new JavascriptWebViewClient($"javascript: {JavascriptFunction}");
-            webView.SetWebViewClient(_JSclient);
+            webView.SetWebViewClient(new JavascriptWebViewClient($"javascript: {JavascriptFunction}"));
             webView.AddJavascriptInterface(jsBridgeHandler, "jsBridge");
             webView.SetWebChromeClient(new CustomWebChromeClient(this));
             webView.ClearFormData();
@@ -139,7 +132,6 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
         string user = "";
         string pw = "";
         int count = 0;
-        public string org_Url { get; set; }
 
         public JavascriptWebViewClient(string javascript) {
             _javascript = javascript;
@@ -176,7 +168,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             count++;
         }
         public override bool ShouldOverrideUrlLoading(AndroidWeb.WebView view, AndroidWeb.IWebResourceRequest request) {
-            if (request.Url.ToString() != org_Url) {
+            if (request.Url.Query.Contains("attachment")) { 
                 string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
                     "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
                     "xhr.responseType = 'blob';" +

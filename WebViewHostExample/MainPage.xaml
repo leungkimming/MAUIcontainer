@@ -6,7 +6,6 @@
     xmlns:controls="clr-namespace:WebViewHostExample.Controls"
     >
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -17,11 +16,10 @@
             <ColumnDefinition Width="45"/>
         </Grid.ColumnDefinitions>
         <Grid Margin="0,2" Grid.Row="0" Grid.Column="0" BackgroundColor="AntiqueWhite">
-            <!--<Frame Opacity="0.3" BackgroundColor="AntiqueWhite" CornerRadius="5"/>-->
             <Entry BackgroundColor="Transparent" Placeholder="Enter Url"  
                 Text="{Binding UrlText}" Margin="4,0" x:Name="Url" PlaceholderColor="Gray" />
         </Grid>
-        <Button Margin="1,1" Grid.Row="0" Grid.Column="1" FontSize="12" Text="Go" 
+        <Button Margin="1,1" Grid.Row="0" Grid.Column="1" FontSize="12" Text="Go" x:Name="GoButton"
                 FontFamily="OpenSansBold" Clicked="onSearchButton"  />
         <ScrollView x:Name="scrollView"
                 Grid.Row="1"

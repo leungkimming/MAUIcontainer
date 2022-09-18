@@ -11,7 +11,7 @@
             <StackLayout>
                 <Label FontSize="16" x:Name="Status"/>
             </StackLayout>
-            <Button Margin="0,15" Text="Login" FontFamily="OpenSansBold" Clicked="onLogin"  />
+            <Button Margin="0,15" Text="Login" FontFamily="OpenSansBold" Clicked="onLogin" x:Name="Login"  />
             <Button Margin="0,15" Text="Logout" FontFamily="OpenSansBold" Clicked="onLogout"  />
         </StackLayout>
     </Grid>

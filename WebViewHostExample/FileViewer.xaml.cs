@@ -1,9 +1,7 @@
 namespace WebViewHostExample;
 
-public partial class FileViewer : ContentPage
-{
-	public FileViewer(string url)
-	{
+public partial class FileViewer : ContentPage {
+	public FileViewer(string url) {
 		InitializeComponent();
         FileViewWebView.Source = url;
 	}
