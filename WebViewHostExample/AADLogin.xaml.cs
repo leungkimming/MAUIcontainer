@@ -51,10 +51,12 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         authService.LogoutAsync();
         Status.Text = "Status: Logout";
         Login.IsEnabled = true;
+#if ANDROID
         bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
         if (action) {
             Application.Current?.Quit();
         }
+#endif
     }
     async void useNTLM(object sender, EventArgs e) {
         if (isPush) {

@@ -51,6 +51,11 @@
 
 	<ItemGroup>
 	  <None Remove="Platforms\Android\google-services.json" />
+	  <None Remove="Platforms\iOS\GoogleService-Info.plist" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Platforms\iOS\GoogleService-Info.plist" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -91,7 +96,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-	  <PackageReference Include="Xamarin.Firebase.Messaging"  Version="123.0.7">
+	  <PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.7">
 	    <Version>123.0.7</Version>
 	  </PackageReference>
 	</ItemGroup>

@@ -7,7 +7,7 @@ public partial class App : Application {
     public App() {
         InitializeComponent();
         MessageQueue = new Dictionary<string, string>();
-
+#if ANDROID
         CrossFirebasePushNotification.Current.OnTokenRefresh += (s, p) => {
             System.Diagnostics.Debug.WriteLine($"TOKEN : {p.Token}");
         };
@@ -25,7 +25,7 @@ public partial class App : Application {
                 MessageQueue.Add("PushNotification", p.Data["body"].ToString());
             });
         };
-
+#endif
         MainPage = new AppShell();
     }
 }
