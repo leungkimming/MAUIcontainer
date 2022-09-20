@@ -14,6 +14,9 @@ namespace WebViewHostExample.Common {
         [SupportedOSPlatform("IOS15.2")]
         public static void getFingerPrint(string reason) {
             var message = "Authenticated";
+            if (reason == null) {
+                reason = " ";
+            }
 
             CancellationTokenSource _cancel = new CancellationTokenSource(); //new CancellationTokenSource(TimeSpan.FromSeconds(10))
             var dialogConfig = new AuthenticationRequestConfiguration("MAUIContainer", reason) {

@@ -168,7 +168,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             count++;
         }
         public override bool ShouldOverrideUrlLoading(AndroidWeb.WebView view, AndroidWeb.IWebResourceRequest request) {
-            if (request.Url.Query.Contains("attachment")) { 
+            if (!string.IsNullOrWhiteSpace(request.Url.Query) && request.Url.Query.Contains("attachment")) { 
                 string _javascript = @"javascript: var xhr = new XMLHttpRequest();" +
                     "xhr.open('GET', '" + request.Url.ToString() + "', true);" +
                     "xhr.responseType = 'blob';" +
