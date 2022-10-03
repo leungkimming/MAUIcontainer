@@ -21,8 +21,8 @@ public partial class MainPage : ContentPage {
 
         MyWebView.JavaScriptAction += MyWebView_JavaScriptActionHandler;
         //vm.UrlText = "https://192.168.0.30:44355/dotnet6EAA/";
-        vm.UrlText = "https://192.168.0.30:7196/";
-        //vm.UrlText = "https://dotnet6client.z23.web.core.windows.net/";
+        //vm.UrlText = "https://192.168.0.30:7196/";
+        vm.UrlText = "https://mauiclient.z23.web.core.windows.net/";
 
         string token = BlazorCallHelper.getAADToken();
         if (token == null) {

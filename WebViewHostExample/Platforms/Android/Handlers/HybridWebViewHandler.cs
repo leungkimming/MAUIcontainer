@@ -47,7 +47,7 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
             webView.Settings.DefaultTextEncodingName = "UTF-8";
             webView.SetWebViewClient(new JavascriptWebViewClient($"javascript: {JavascriptFunction}"));
             webView.AddJavascriptInterface(jsBridgeHandler, "jsBridge");
-            webView.SetWebChromeClient(new CustomWebChromeClient(this));
+            webView.SetWebChromeClient(new CustomWebChromeClient(this,webView));
             webView.ClearFormData();
             webView.ClearHistory();
             webView.ClearMatches();
@@ -89,8 +89,11 @@ namespace WebViewHostExample.Platforms.Droid.Renderers {
     public class CustomWebChromeClient : AndroidWeb.WebChromeClient, AndroidWeb.IValueCallback {
         public HybridWebViewHandler _handler;
         public AndroidWeb.IValueCallback _callback;
-        public CustomWebChromeClient(HybridWebViewHandler handler) {
+        public CustomWebChromeClient(HybridWebViewHandler handler, AndroidWeb.WebView webview) {
             _handler = handler;
+            AndroidWeb.WebView.SetWebContentsDebuggingEnabled(true);
+            AndroidWeb.CookieManager cookieManager = AndroidWeb.CookieManager.Instance;
+            cookieManager.SetAcceptThirdPartyCookies(webview, true);
         }
         public override bool OnCreateWindow(AndroidWeb.WebView view, bool isDialog, bool isUserGesture, Message resultMsg) {
             var TestResult = view.GetHitTestResult();

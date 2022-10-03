@@ -5,7 +5,8 @@
 		android:icon="@mipmap/appicon" 
 		android:roundIcon="@mipmap/appicon_round" 
 		android:requestLegacyExternalStorage="true"
-		android:supportsRtl="true">
+		android:supportsRtl="true"
+   >
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
