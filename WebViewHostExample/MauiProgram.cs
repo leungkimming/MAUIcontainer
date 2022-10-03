@@ -24,13 +24,11 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
-            .ConfigureFonts(fonts =>
-            {
+            .ConfigureFonts(fonts => {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
-            .ConfigureMauiHandlers(handlers =>
-            {
+            .ConfigureMauiHandlers(handlers => {
                 handlers.AddHandler(typeof(HybridWebView), typeof(HybridWebViewHandler));
             });
 
