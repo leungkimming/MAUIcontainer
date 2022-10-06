@@ -14,7 +14,7 @@
 		<ApplicationTitle>WebViewHostExample</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.webviewhostexample</ApplicationId>
+		<ApplicationId>com.hke.mauicontainer</ApplicationId>
 		<ApplicationIdGuid>071ADB29-F609-4254-AF93-DE8E516E5ECA</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -23,12 +23,12 @@
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-		<ProvisioningType>automatic</ProvisioningType>
+		<ProvisioningType>manual</ProvisioningType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net6.0-ios'">
-	  <CodesignKey>Apple Development: Nathaniel Moschkin (Z5JX9H58QG)</CodesignKey>
-	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
+	  <CodesignKey>Apple Development: micl@hkstar.com (2LC46WTT84)</CodesignKey>
+	  <CodesignProvision>iOS Team Provisioning Profile: com.hke.mauicontainer</CodesignProvision>
 	</PropertyGroup>
 
 	<ItemGroup>

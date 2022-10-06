@@ -30,6 +30,13 @@
             {
               "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "175690784260-o71jq8lt8m00r4ea1r6a3q6g4dcp75kb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.companyname.webviewhostexample"
+              }
             }
           ]
         }
@@ -37,9 +44,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:175690784260:android:1bbf0a2702b9207a4c9f51",
+        "mobilesdk_app_id": "1:175690784260:android:9b046177d54cc1114c9f51",
         "android_client_info": {
-          "package_name": "com.companyname.webviewhostexample"
+          "package_name": "com.hke.mauicontainer"
         }
       },
       "oauth_client": [
@@ -59,6 +66,13 @@
             {
               "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "175690784260-o71jq8lt8m00r4ea1r6a3q6g4dcp75kb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.companyname.webviewhostexample"
+              }
             }
           ]
         }
