@@ -4,7 +4,8 @@
 <dict>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.microsoft.adalcache</string>
+		<!--<string>$(AppIdentifierPrefix).microsoft.adalcache</string>-->
+		<string>YY9Y8LHQWB.microsoft.adalcache</string>
 	</array>
 </dict>
 </plist>

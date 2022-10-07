@@ -14,7 +14,7 @@ namespace WebViewHostExample.Common {
         [SupportedOSPlatform("IOS15.2")]
         public static void getFingerPrint(string reason) {
             var message = "Authenticated";
-            if (reason == null) {
+            if (reason == null || reason == "") {
                 reason = " ";
             }
 
