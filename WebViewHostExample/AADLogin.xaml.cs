@@ -5,6 +5,7 @@ namespace WebViewHostExample;
 
 public partial class AADLogin : ContentPage, INotifyPropertyChanged {
     public bool isPush { get; set; }
+    public static string errmessage { get; set; }
     public AADLogin()
 	{
 		InitializeComponent();
@@ -45,6 +46,7 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
                 await Navigation.PopModalAsync();
             }
         }
+        Status.Text += errmessage;
     }
     async void onLogout(object sender, EventArgs e) {
         var authService = new AuthService();

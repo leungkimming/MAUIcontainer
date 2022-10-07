@@ -63,6 +63,7 @@ namespace WebViewHostExample {
                 }
                 return null;
             } catch (MsalClientException e) {
+                AADLogin.errmessage = e.Message + e.StackTrace;
                 Console.WriteLine(e.Message + e.StackTrace);
                 return null;
             }
