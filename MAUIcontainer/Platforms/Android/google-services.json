@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "175690784260",
+    "firebase_url": "https://batman-eebc7.firebaseio.com",
+    "project_id": "batman-eebc7",
+    "storage_bucket": "batman-eebc7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175690784260:android:e265b4ee46f60ed24c9f51",
+        "android_client_info": {
+          "package_name": "com.batman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzGC1tRYiT1qWeuxoqPIA0TUpuuGFDTzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "175690784260-o71jq8lt8m00r4ea1r6a3q6g4dcp75kb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hke.mauicontainer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175690784260:android:9b046177d54cc1114c9f51",
+        "android_client_info": {
+          "package_name": "com.hke.mauicontainer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzGC1tRYiT1qWeuxoqPIA0TUpuuGFDTzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175690784260-b5vhtefoagbfd4aejts0mb6s5gqtbvce.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "175690784260-o71jq8lt8m00r4ea1r6a3q6g4dcp75kb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hke.mauicontainer"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
