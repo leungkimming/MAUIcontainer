@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MAUIcontainer.Login"
+             Title="Login">
+    <Grid>
+        <StackLayout Margin="20">
+            <StackLayout Margin="0,80">
+                <Label FontSize="32" Text="Windows Authentication"/>
+            </StackLayout>
+            <StackLayout>
+                <Label FontSize="16" Text="Username"/>
+                <Grid Margin="0,5">
+                    <Frame Opacity="0.3" BackgroundColor="White" CornerRadius="5"/>
+                    <Entry BackgroundColor="Transparent" Placeholder="Enter username" 
+                           Margin="5,0" x:Name="user" PlaceholderColor="Gray" Keyboard="Plain" />
+                </Grid>
+                <Label FontSize="16" Text="Password"/>
+                <Grid Margin="0,5">
+                    <Frame Opacity="0.3" BackgroundColor="White" CornerRadius="5"/>
+                    <Entry BackgroundColor="Transparent" Placeholder="Enter password" 
+                           Margin="5,0" x:Name="pw" PlaceholderColor="Gray" IsPassword="True"/>
+                </Grid>
+            </StackLayout>
+            <Button Margin="0,15" Text="Submit" FontFamily="OpenSansBold" Clicked="onSubmit"  />
+        </StackLayout>
+    </Grid>
+</ContentPage>

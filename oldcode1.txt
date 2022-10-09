@@ -9,10 +9,10 @@ using UIKit;
 using Foundation;
 using MobileCoreServices;
 #endif
-using WebViewHostExample.ViewModels;
+using MAUIcontainer.ViewModels;
 using System.Security.Policy;
 
-namespace WebViewHostExample;
+namespace MAUIcontainer;
 
 public partial class MainPage : ContentPage
 {
@@ -168,12 +168,12 @@ using Android.Net;
 using Java.Interop;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Handlers;
-using WebViewHostExample.Controls;
+using MAUIcontainer.Controls;
 using static Android.Net.Http.SslCertificate;
 using Microsoft.Extensions.DependencyInjection;
 using Java.Net;
 
-namespace WebViewHostExample.Platforms.Droid.Renderers {
+namespace MAUIcontainer.Platforms.Droid.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, Android.Webkit.WebView> {
         public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
 
@@ -476,9 +476,9 @@ using System;
 using System.Management;
 using WebKit;
 
-using WebViewHostExample.Controls;
+using MAUIcontainer.Controls;
 
-namespace WebViewHostExample.Platforms.iOS.Renderers
+namespace MAUIcontainer.Platforms.iOS.Renderers
 {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, WKWebView>
     {
