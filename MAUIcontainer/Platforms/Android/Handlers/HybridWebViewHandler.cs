@@ -19,6 +19,8 @@ using Java.Net;
 using Java.Lang;
 using Android.Views;
 using Microsoft.Maui.Controls;
+using System.Text.Json;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer.Platforms.Droid.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, AndroidWeb.WebView> {
@@ -86,7 +88,7 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
             } catch { }
         }
     }
-    public class CustomWebChromeClient : AndroidWeb.WebChromeClient, AndroidWeb.IValueCallback {
+    public class CustomWebChromeClient : AndroidWeb.WebChromeClient {
         public HybridWebViewHandler _handler;
         public AndroidWeb.IValueCallback _callback;
         public CustomWebChromeClient(HybridWebViewHandler handler, AndroidWeb.WebView webview) {
@@ -115,8 +117,6 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
         }
         public override bool OnShowFileChooser(AndroidWeb.WebView webView, AndroidWeb.IValueCallback filePathCallback,
             FileChooserParams fileChooserParams) {
-
-            webView.EvaluateJavascript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", this);
             _callback = filePathCallback;
             MainActivity.handler = doCallback;
             Intent intent = new Intent(Intent.ActionPick);
@@ -125,12 +125,8 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
             _handler.Services.GetService<Activity>().StartActivityForResult(Intent.CreateChooser(intent, "Select File to Upload"), 1);
             return true;
         }
-        public void OnReceiveValue(Java.Lang.Object result) {
-            Microsoft.Maui.Controls.Application.Current.MainPage
-                .DisplayAlert("Warning", $"You are uploading file to the ({result.ToString().Trim('"')}) environment", "Ok");
-        }
     }
-    public class JavascriptWebViewClient : AndroidWeb.WebViewClient {
+    public class JavascriptWebViewClient : AndroidWeb.WebViewClient, AndroidWeb.IValueCallback {
         string _javascript;
         string user = "";
         string pw = "";
@@ -139,12 +135,26 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
         public JavascriptWebViewClient(string javascript) {
             _javascript = javascript;
         }
+        public void OnReceiveValue(Java.Lang.Object result) {
+            if (result != null) {
+                string[] parts = result.ToString().Trim('"').Split('|');
+                if (parts.Length > 1) {
+                    int.TryParse(parts[0], out int hashcode);
+                    App.errmessage += $"callback hashcode={hashcode};";
+                    if (App.MessageQueue.Any(x => x.Key == hashcode)) {
+                        App.MessageQueue[hashcode] = null;
+                        App.errmessage += $"MessageQ null hashcode={hashcode};";
+                    }
+                }
+            }
+        }
         public override void OnPageStarted(AndroidWeb.WebView view, string url, Bitmap favicon) {
             base.OnPageStarted(view, url, favicon);
             view.EvaluateJavascript(_javascript, null);
             MessagingCenter.Subscribe<App, string>(this, "PushNotification", (sender, arg) => {
+                App.errmessage += $"JS arg={arg};";
                 MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavascript(
-                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg}' );", null));
+                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg.Replace(@"\n", "").Replace(@"\u0022", "")}' );", this));
             });
         }
 #if DEBUG

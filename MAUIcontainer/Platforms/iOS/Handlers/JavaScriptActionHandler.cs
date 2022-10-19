@@ -17,10 +17,6 @@ namespace MAUIcontainer.Controls {
             var webview = ((HybridWebViewHandler)handler).PlatformView;
 
             if (message.StartsWith("Download:")) {
-                WKJavascriptEvaluationResult callback = (NSObject result, NSError err) => {
-                    Application.Current.MainPage.DisplayAlert("Warning", $"You are downloading from the ({result.ToString()})  environment ", "Ok");
-                };
-                webview.EvaluateJavaScript(@"DotNet.invokeMethod('Client', 'getEnvironment', 1);", callback);
                 //"Download:abc.txt,mimeType:application\pdf,base64:xxxxxxxxxxxxxxxx
                 int minePos = message.IndexOf(",mimeType:");
                 int base64Pos = message.IndexOf(",base64:");

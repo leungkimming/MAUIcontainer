@@ -11,7 +11,7 @@ using Microsoft.Identity.Client;
 using Plugin.Fingerprint;
 using Android.Views;
 using Plugin.Fingerprint.Abstractions;
-using Plugin.FirebasePushNotification;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer;
 
@@ -19,6 +19,7 @@ namespace MAUIcontainer;
 public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
+    public static MainActivity Instance { get; set; }
 
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
         if ((requestCode == 1) && handler != null) {
@@ -35,6 +36,31 @@ public class MainActivity : MauiAppCompatActivity {
     protected override void OnCreate(Bundle savedInstanceState) {
         base.OnCreate(savedInstanceState);
         CrossFingerprint.SetCurrentActivityResolver(() => this);
-        FirebasePushNotificationManager.ProcessIntent(this, Intent);
+        HandleIntent(Intent);
+        CreateNotificationChannelIfNeeded();
+        Instance = this;
+    }
+    protected override void OnNewIntent(Intent intent) {
+        base.OnNewIntent(intent);
+        HandleIntent(intent);
+    }
+
+    private static void HandleIntent(Intent intent) {
+        FirebaseCloudMessagingImplementation.OnNewIntent(intent);
+    }
+
+    private void CreateNotificationChannelIfNeeded() {
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.O) {
+            CreateNotificationChannel();
+        }
+    }
+
+    private void CreateNotificationChannel() {
+        var channelId = $"{PackageName}.general";
+        var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+        var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
+        notificationManager.CreateNotificationChannel(channel);
+        FirebaseCloudMessagingImplementation.ChannelId = channelId;
+        //FirebaseCloudMessagingImplementation.SmallIconRef = Resource.Drawable.ic_push_small;
     }
 }

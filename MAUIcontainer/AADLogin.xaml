@@ -5,7 +5,7 @@
              Title="Login">
     <Grid>
         <StackLayout Margin="20">
-            <StackLayout Margin="0,80">
+            <StackLayout Margin="0,20">
                 <Label FontSize="32" Text="Azure AD Authentication"/>
             </StackLayout>
             <StackLayout>
@@ -15,6 +15,9 @@
             <Button Margin="0,15" Text="Logout" FontFamily="OpenSansBold" Clicked="onLogout"  />
             <Button Margin="100,100,0,0" Text="Opt for Windows Authentication" FontFamily="OpenSansBold" 
                     Clicked="useNTLM" x:Name="useNTLMButton"/>
+            <StackLayout>
+                <Button Margin="0,15" Text="Debug" FontFamily="OpenSansBold" Clicked="onDebug"  />
+            </StackLayout>
         </StackLayout>
     </Grid>
 </ContentPage>

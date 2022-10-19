@@ -1,4 +1,5 @@
 using Microsoft.Identity.Client;
+using Plugin.Firebase.CloudMessaging;
 using System.ComponentModel;
 
 namespace MAUIcontainer;
@@ -32,6 +33,28 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
             Login.IsEnabled = true;
         }
     }
+    async Task<string> GetCFMToken() {
+        int count = 0;
+        string token = "";
+        while (count < 2) {
+            try {
+                await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+                token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+                break;
+            } catch (Exception e) {
+                token = e.Message;
+            }
+            count++;
+        }
+        System.Diagnostics.Debug.WriteLine(token);
+        return token;
+    }
+    async void onDebug(object sender, EventArgs e) {
+        App.errmessage += "FCM Token:" + await GetCFMToken();
+        await DisplayAlert("Debug", $"{App.errmessage} ", "Ok");
+        App.errmessage = "";
+    }
+
     async void onLogin(object sender, EventArgs e) {
         var authService = new AuthService();
         var result = await authService.LoginAsync(CancellationToken.None);
@@ -46,7 +69,6 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
                 await Navigation.PopModalAsync();
             }
         }
-        Status.Text += errmessage;
     }
     async void onLogout(object sender, EventArgs e) {
         var authService = new AuthService();
@@ -57,6 +79,8 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
         if (action) {
             Application.Current?.Quit();
+            //var activity = MainActivity.Instance as Android.App.Activity;
+            //activity.Finish();
         }
 #endif
     }

@@ -6,6 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using MAUIcontainer.Common;
 using MAUIcontainer.ViewModels;
+using Plugin.Firebase.CloudMessaging;
+using System.Text.Json;
 
 namespace MAUIcontainer;
 public partial class MainPage : ContentPage {
@@ -15,7 +17,7 @@ public partial class MainPage : ContentPage {
     public JavaScriptActionHandler jsActionHandler { get; set; }
     public MainPage() {
 		InitializeComponent();
-
+        App.mainpage = this;
         vm = new MainPageViewModel();
         BindingContext = vm;
 
@@ -34,14 +36,17 @@ public partial class MainPage : ContentPage {
 
         jsActionHandler = new JavaScriptActionHandler();
     }
-    void LoadApp(object sender, EventArgs e) {
-        var pm = MAUIcontainer.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
-        if (pm.Key != null && pm.Key == "PushNotification") {
+    public void LoadApp(object sender, EventArgs e) {
+        int key = App.MessageQueue.Where(x => x.Value != null).FirstOrDefault().Key;
+        App.errmessage += $"LoadApp key={key};";
+        if (key != 0) {
             vm.Source = vm.UrlText;
+            App.currentRUL = vm.UrlText;
         }
     }
     void onSearchButton(object sender, EventArgs e) {
         vm.Source = vm.UrlText;
+        App.currentRUL = vm.UrlText;
     }
     private void MyWebView_JavaScriptActionHandler(object sender, Controls.JavaScriptActionEventArgs e) {
         Dispatcher.Dispatch(() => {
