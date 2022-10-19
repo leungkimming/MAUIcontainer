@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Plugin.Fingerprint.Abstractions;
 using MAUIcontainer;
 using MAUIcontainer.Controls;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer.Common {
     public static partial class BlazorCallHelper {
@@ -41,10 +42,14 @@ namespace MAUIcontainer.Common {
         }
         public static void getPMessage(string dummy) {
             string pMessage = "";
-            var pm = MAUIcontainer.App.MessageQueue.Where(x => x.Key == "PushNotification").FirstOrDefault();
-            if (pm.Key != null && pm.Key == "PushNotification") {
-                pMessage = pm.Value;
-                MAUIcontainer.App.MessageQueue.Remove(pm.Key);
+            int key = App.MessageQueue.Where(x => x.Value != null)
+                .FirstOrDefault().Key;
+            App.errmessage += $"getPMessage key={key};";
+            if (key != 0) {
+                pMessage = $"{key}|{JsonSerializer.Serialize(App.MessageQueue[key])}";
+                pMessage = pMessage.Replace(@"\n", "").Replace(@"\u0022", "");
+                App.MessageQueue[key] = null;
+                App.errmessage += $"getPMessage JS={pMessage.Substring(0, 15)};";
             }
             callback(promiseId, pMessage);
         }

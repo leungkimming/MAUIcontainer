@@ -18,7 +18,7 @@ namespace MAUIcontainer {
                 .WithRedirectUri($"msal{MAUIcontainer.Common.Constants.ApplicationId}://auth")
 #endif
 #if IOS
-                .WithIosKeychainSecurityGroup("microsoft.adalcache")
+                .WithIosKeychainSecurityGroup("com.microsoft.adalcache")
 #endif
             .Build();
         }

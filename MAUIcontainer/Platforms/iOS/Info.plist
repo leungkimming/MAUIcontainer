@@ -68,7 +68,5 @@
 	</array>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Need your face to unlock magic things</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.hke.mauicontainer</string>
 </dict>
 </plist>

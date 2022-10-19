@@ -7,6 +7,9 @@ using System.Management;
 using System.Runtime.Versioning;
 using WebKit;
 using MAUIcontainer.Controls;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using System.Text;
 
 namespace MAUIcontainer.Platforms.iOS.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, WKWebView> {
@@ -40,7 +43,7 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
 
             var config = new WKWebViewConfiguration { UserContentController = userController };
             var webView = new WKWebView(CGRect.Empty, config);
-            _delegate = new WKWebViewDelegate();
+            _delegate = new WKWebViewDelegate(webView);
             webView.NavigationDelegate = _delegate;
 
             return webView;
@@ -82,7 +85,30 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
         string pw = "";
         int count = 0;
         public string org_Url { get; set; }
-
+        public WKWebViewDelegate(WKWebView view) {
+            WKJavascriptEvaluationResult callback = (NSObject result, NSError err) => {
+                if (result != null) {
+                    string[] parts = result.ToString().Split('|');
+                    //System.Diagnostics.Debug.WriteLine("return:"+parts[1]);
+                    if (parts.Length > 1) {
+                        int.TryParse(parts[0], out int hashcode);
+                        App.errmessage += $"callback hashcode={hashcode};";
+                        if (App.MessageQueue.Any(x => x.Key == hashcode)) {
+                            App.MessageQueue[hashcode] = null;
+                            App.errmessage += $"MessageQ null hashcode={hashcode};";
+                        }
+                    }
+                }
+            };
+            MessagingCenter.Subscribe<App, string>(this, "PushNotification", (sender, arg) => {
+                App.errmessage += $"JS arg={arg.Substring(0, 15)};";
+                string s_arg = arg.Replace(@"\n", "").Replace(@"\u0022", "");
+                //System.Diagnostics.Debug.WriteLine("send:"+s_arg);
+                MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavaScript(
+                    $"DotNet.invokeMethod('Client', 'setMessage', '{s_arg}' );", callback));
+            });
+        }
+        
         [Foundation.Export("webView:didReceiveAuthenticationChallenge:completionHandler:")]
         public override void DidReceiveAuthenticationChallenge(WKWebView webView, NSUrlAuthenticationChallenge challenge,
             Action<NSUrlSessionAuthChallengeDisposition, NSUrlCredential> completionHandler) {

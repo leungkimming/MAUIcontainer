@@ -14,7 +14,7 @@
 		<ApplicationTitle>MAUIcontainer</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.hke.mauicontainer</ApplicationId>
+		<ApplicationId>com.hkeenterprise.mauicontainer</ApplicationId>
 		<ApplicationIdGuid>071ADB29-F609-4254-AF93-DE8E516E5ECA</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -27,8 +27,8 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net6.0-ios'">
-	  <CodesignKey>Apple Development: micl@hkstar.com (2LC46WTT84)</CodesignKey>
-	  <CodesignProvision>iOS Team Provisioning Profile: com.hke.mauicontainer</CodesignProvision>
+	  <CodesignKey>Apple Development: Michael Leung (298MBQXBL5)</CodesignKey>
+	  <CodesignProvision>MAUI Container Development Profile</CodesignProvision>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -52,16 +52,15 @@
 
 	<ItemGroup>
 	  <None Remove="Platforms\Android\google-services.json" />
-	  <None Remove="Platforms\iOS\GoogleService-Info.plist" />
 	  <None Remove="Resources\AppIcon\appiconfg.svg" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <EmbeddedResource Include="Platforms\iOS\GoogleService-Info.plist" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <GoogleServicesJson Include="Platforms\Android\google-services.json" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+		<BundleResource Include="GoogleService-Info.plist" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,8 +74,9 @@
 	  <PackageReference Include="Microsoft.Identity.Client" Version="4.47.0" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
-	  <PackageReference Include="Plugin.FirebasePushNotification" Version="3.4.25" />
+	  <PackageReference Include="Plugin.Firebase" Version="1.2.0" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
+	  <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -96,11 +96,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
-
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-	  <PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.7">
-	    <Version>123.0.7</Version>
-	  </PackageReference>
+		<PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+		<PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
 	</ItemGroup>
-
+	<ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadWrongLinkerErrorInfoBarMAUIcontainerHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 </Project>
