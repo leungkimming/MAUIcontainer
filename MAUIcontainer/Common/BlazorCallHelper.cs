@@ -40,14 +40,14 @@ namespace MAUIcontainer.Common {
             string accessToken = getAADToken();
             callback(promiseId, accessToken);
         }
-        public static void getPMessage(string dummy) {
+        public static void getPMessage(string AppId) {
             string pMessage = "";
             int key = App.MessageQueue.Where(x => x.Value != null)
                 .FirstOrDefault().Key;
             App.errmessage += $"getPMessage key={key};";
             if (key != 0) {
-                pMessage = $"{key}|{JsonSerializer.Serialize(App.MessageQueue[key])}";
-                pMessage = pMessage.Replace(@"\n", "").Replace(@"\u0022", "");
+                string sMessage = JsonSerializer.Serialize(App.MessageQueue[key]);
+                pMessage = $"{key}|{Convert.ToBase64String(Encoding.Default.GetBytes(sMessage))}";
                 App.MessageQueue[key] = null;
                 App.errmessage += $"getPMessage JS={pMessage.Substring(0, 15)};";
             }

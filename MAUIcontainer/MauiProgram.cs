@@ -53,8 +53,6 @@ public static class MauiProgram {
         });
 
         builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
-        //builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
-        //builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
         return builder;
     }
 

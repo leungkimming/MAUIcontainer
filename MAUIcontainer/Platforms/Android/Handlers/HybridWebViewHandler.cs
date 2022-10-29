@@ -154,7 +154,7 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
             MessagingCenter.Subscribe<App, string>(this, "PushNotification", (sender, arg) => {
                 App.errmessage += $"JS arg={arg};";
                 MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavascript(
-                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg.Replace(@"\n", "").Replace(@"\u0022", "")}' );", this));
+                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg}' );", this));
             });
         }
 #if DEBUG
