@@ -15,11 +15,10 @@ using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer;
 
-[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
-    public static MainActivity Instance { get; set; }
 
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
         if ((requestCode == 1) && handler != null) {
@@ -38,7 +37,6 @@ public class MainActivity : MauiAppCompatActivity {
         CrossFingerprint.SetCurrentActivityResolver(() => this);
         HandleIntent(Intent);
         CreateNotificationChannelIfNeeded();
-        Instance = this;
     }
     protected override void OnNewIntent(Intent intent) {
         base.OnNewIntent(intent);

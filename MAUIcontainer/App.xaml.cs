@@ -1,18 +1,19 @@
 ﻿using Plugin.Firebase.CloudMessaging;
 using System;
 using System.Text.Json;
+using System.Text;
 
 namespace MAUIcontainer;
 
 public partial class App : Application {
     public static Dictionary<int, FCMNotification> MessageQueue { get; private set; }
     public static string errmessage { get; set; }
-    public static string currentRUL { get; set; }
+    public static string currentURL { get; set; }
     public static MainPage mainpage { get; set; }
 
     public App() {
         InitializeComponent();
-        currentRUL = "";
+        currentURL = "";
         mainpage = null;
         MessageQueue = new Dictionary<int, FCMNotification>();
         CrossFirebaseCloudMessaging.Current.NotificationReceived += Current_NotificationReceived;
@@ -35,26 +36,15 @@ public partial class App : Application {
 
         if (!MessageQueue.Any(x => x.Key == hashcode)) {
             MessageQueue.Add(hashcode, message);
-            return $"{hashcode}|{jmessage}";
+            return $"{hashcode}|{Convert.ToBase64String(Encoding.Default.GetBytes(jmessage))}";
         }
         return null;
     }
     private void Current_NotificationTapped(object sender, Plugin.Firebase.CloudMessaging.EventArgs.FCMNotificationTappedEventArgs e) {
         errmessage += "PM Tapped";
-#if IOS
         string jmessage = Add2Queue(e.Notification);
-#else
-        string jmessage = null;
-        if (e.Notification.Data.Any(x => x.Key == "google.message_id")) {
-            Add2Queue(e.Notification); //make jmessage null, don't send to messagecenter, wait for LoadApp
-        } else {
-            int key = MessageQueue.Where(x => x.Value != null).FirstOrDefault().Key;
-            App.errmessage += $"mock Tapped key={key};";
-            jmessage = key != 0 ? $"{key}|{JsonSerializer.Serialize(MessageQueue[key])}" : null;
-        }
-#endif
-        errmessage += $"MessageQ jmessage={(jmessage != null ? jmessage.Substring(0,15) : null)};";
-        if (mainpage != null && currentRUL == "") { // actual implementation should check PM message App is loaded?
+        errmessage += $"MessageQ jmessage={(jmessage != null ? jmessage.Substring(0, 15) : null)};";
+        if (mainpage != null && currentURL == "") { // actual implementation should check PM message App is loaded?
             errmessage += "LoadApp;";
             mainpage.LoadApp(this, null);
         }
@@ -65,11 +55,6 @@ public partial class App : Application {
     }
     private void Current_NotificationReceived(object sender, Plugin.Firebase.CloudMessaging.EventArgs.FCMNotificationReceivedEventArgs e) {
         System.Diagnostics.Debug.WriteLine($"PM Received:{e.Notification.Title}, {e.Notification.Body}");
-#if ANDROID
-        string jmessage = Add2Queue(e.Notification);
-        //if (jmessage != null) {
-        //    MessagingCenter.Send<App, string>(this, "PushNotification", jmessage);
-        //}
-#endif
+        errmessage += "PM Received";
     }
 }

@@ -102,10 +102,9 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
             };
             MessagingCenter.Subscribe<App, string>(this, "PushNotification", (sender, arg) => {
                 App.errmessage += $"JS arg={arg.Substring(0, 15)};";
-                string s_arg = arg.Replace(@"\n", "").Replace(@"\u0022", "");
                 //System.Diagnostics.Debug.WriteLine("send:"+s_arg);
                 MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavaScript(
-                    $"DotNet.invokeMethod('Client', 'setMessage', '{s_arg}' );", callback));
+                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg}' );", callback));
             });
         }
         

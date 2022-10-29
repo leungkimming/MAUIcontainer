@@ -79,8 +79,6 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
         if (action) {
             Application.Current?.Quit();
-            //var activity = MainActivity.Instance as Android.App.Activity;
-            //activity.Finish();
         }
 #endif
     }

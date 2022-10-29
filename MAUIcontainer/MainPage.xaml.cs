@@ -41,12 +41,12 @@ public partial class MainPage : ContentPage {
         App.errmessage += $"LoadApp key={key};";
         if (key != 0) {
             vm.Source = vm.UrlText;
-            App.currentRUL = vm.UrlText;
+            App.currentURL = vm.UrlText;
         }
     }
     void onSearchButton(object sender, EventArgs e) {
         vm.Source = vm.UrlText;
-        App.currentRUL = vm.UrlText;
+        App.currentURL = vm.UrlText;
     }
     private void MyWebView_JavaScriptActionHandler(object sender, Controls.JavaScriptActionEventArgs e) {
         Dispatcher.Dispatch(() => {
