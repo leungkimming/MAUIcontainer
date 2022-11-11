@@ -53,5 +53,64 @@ namespace MAUIcontainer.Common {
             }
             callback(promiseId, pMessage);
         }
+        public static void uploadFiles(string files) {
+            MainThread.InvokeOnMainThreadAsync(async () => {
+                ResponseDto response= new ResponseDto();
+                try {
+                    var filesRequest=JsonSerializer.Deserialize<FilesRequest>(files);
+                    foreach (var file in filesRequest.Files) {
+                        APIService.UploadFileRequest(file, filesRequest.Request);
+                    }
+                    response.Message = "Success";
+                    response.StatusCode=System.Net.HttpStatusCode.OK;
+                    
+                } catch (Exception ex) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                    throw;
+                } finally {
+                    callback(promiseId, JsonSerializer.Serialize(response));
+                }
+                
+
+            });
+        }
+        public static void displayPhtoto(string filePath) {
+            Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
+        }
+        public static void photograph(string args) {
+            MainThread.InvokeOnMainThreadAsync(async () => {
+                ResponseDto response= new ResponseDto();
+                try {
+                    if (MediaPicker.Default.IsCaptureSupported) {
+                        MediaPickerOptions  mediaPickerOptions= new MediaPickerOptions();
+                        mediaPickerOptions.Title = args;
+                        FileResult photo = await MediaPicker.Default.CapturePhotoAsync(mediaPickerOptions);
+                        FileDto fileDto=new FileDto();
+                        fileDto.ContentType = photo.ContentType;
+                        fileDto.Name = photo.FileName;
+                        // save the file into local storage
+                        string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                        fileDto.FilePath = localFilePath;
+                        using Stream sourceStream = await photo.OpenReadAsync();
+                        using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
+                            await sourceStream.CopyToAsync(localFileStream);
+                        }
+                        response.Message = "Success";
+                        response.StatusCode = System.Net.HttpStatusCode.OK;
+                        response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
+                        
+                    }
+                }catch(Exception ex) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                    throw;
+                } finally {
+                    callback(promiseId, JsonSerializer.Serialize(response));
+                }
+
+            });
+        }
+
     }
 }
