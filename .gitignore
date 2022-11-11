@@ -348,3 +348,8 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+*.p8
+/MAUIcontainer/GoogleService-Info.plist
+/MAUIcontainer/MainPage.xaml.cs
+/MAUIcontainer/MauiProgram.cs
+/MAUIcontainer/MAUIcontainer.csproj
