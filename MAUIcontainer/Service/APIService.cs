@@ -1,11 +1,14 @@
-﻿using MAUIcontainer.Common;
-using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using MAUIcontainer.Common;
 
-
-namespace MAUIcontainer {
-
+namespace MAUIcontainer{
     public static partial class APIService {
         private static void RefreshToken(HttpClient request, RequestDto requestDto) {
             DevHttpsConnectionHelper devHttpsConnectionHelper=new DevHttpsConnectionHelper();
@@ -30,7 +33,7 @@ namespace MAUIcontainer {
             RefreshToken(devHttpsConnectionHelper.HttpClient, requestDto);
             devHttpsConnectionHelper.HttpClient.DefaultRequestHeaders.Add("cache-control", "no-cache");
             var fileStreamContent = new StreamContent(File.OpenRead(file.FilePath));
-            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"image/{ file.ContentType }");
             using var multipartFormContent = new MultipartFormDataContent();
             multipartFormContent.Add(fileStreamContent, name: "files", fileName: file.Name);
             while (!success && currentCount < retryCount) {

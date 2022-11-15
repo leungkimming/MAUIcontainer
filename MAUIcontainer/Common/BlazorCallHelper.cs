@@ -62,16 +62,16 @@ namespace MAUIcontainer.Common {
                         APIService.UploadFileRequest(file, filesRequest.Request);
                     }
                     response.Message = "Success";
-                    response.StatusCode=System.Net.HttpStatusCode.OK;
-                    
-                } catch (Exception ex) {
+                    response.StatusCode = System.Net.HttpStatusCode.OK;
+
+                } catch (Exception) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                     response.Message = "Fail";
                     throw;
                 } finally {
                     callback(promiseId, JsonSerializer.Serialize(response));
                 }
-                
+
 
             });
         }
@@ -92,16 +92,19 @@ namespace MAUIcontainer.Common {
                         // save the file into local storage
                         string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
                         fileDto.FilePath = localFilePath;
+                        fileDto.Src = FileHelper.ThumbnailImage(await photo.OpenReadAsync());
                         using Stream sourceStream = await photo.OpenReadAsync();
+                        
                         using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
-                            await sourceStream.CopyToAsync(localFileStream);
+                            await sourceStream.CopyToAsync(localFileStream);                            
                         }
+                       
                         response.Message = "Success";
                         response.StatusCode = System.Net.HttpStatusCode.OK;
                         response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
-                        
+
                     }
-                }catch(Exception ex) {
+                } catch (Exception) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                     response.Message = "Fail";
                     throw;

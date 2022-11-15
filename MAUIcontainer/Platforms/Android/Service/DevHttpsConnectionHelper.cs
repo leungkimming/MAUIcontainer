@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Security;
-using RestSharp;
 
 namespace MAUIcontainer {
 
@@ -18,12 +17,15 @@ namespace MAUIcontainer {
 
 
         public HttpMessageHandler GetPlatformMessageHandler() {
-            var handler = new CustomAndroidMessageHandler();
+            var handler = new Xamarin.Android.Net.AndroidMessageHandler();
+#if DEBUG
+            handler = new CustomAndroidMessageHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => {
                 if (cert != null && cert.Issuer.Equals("CN=localhost"))
                     return true;
                 return errors == SslPolicyErrors.None;
             };
+#endif
             return handler;
         }
         internal sealed class CustomAndroidMessageHandler : Xamarin.Android.Net.AndroidMessageHandler {

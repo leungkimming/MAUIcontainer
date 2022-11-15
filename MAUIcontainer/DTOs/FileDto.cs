@@ -15,5 +15,7 @@ namespace MAUIcontainer {
         public  string FilePath { get; set; }
         public string ContentType { get; set; }
         public string Src { get; set; }
+        public string FileBase64 { get; set; }
+        public bool IsUpload { get; set; }
     }
 }
