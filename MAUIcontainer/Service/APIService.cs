@@ -33,7 +33,11 @@ namespace MAUIcontainer{
             RefreshToken(devHttpsConnectionHelper.HttpClient, requestDto);
             devHttpsConnectionHelper.HttpClient.DefaultRequestHeaders.Add("cache-control", "no-cache");
             var fileStreamContent = new StreamContent(File.OpenRead(file.FilePath));
-            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"image/{ file.ContentType }");
+            if (file.ContentType.StartsWith("image")) {
+                fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"{file.ContentType}");
+            } else {
+                fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"image/{file.ContentType}");
+            }
             using var multipartFormContent = new MultipartFormDataContent();
             multipartFormContent.Add(fileStreamContent, name: "files", fileName: file.Name);
             while (!success && currentCount < retryCount) {
@@ -43,6 +47,7 @@ namespace MAUIcontainer{
                 }
                 currentCount = currentCount + 1;
             }
+            File.Delete(file.FilePath);
         }
     }
 }

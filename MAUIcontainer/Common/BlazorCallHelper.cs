@@ -75,10 +75,27 @@ namespace MAUIcontainer.Common {
 
             });
         }
-        public static void displayPhtoto(string filePath) {
+        public static void displayPhoto(string filePath) {
             Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
         }
+        public static void deletePhoto(string filePath) {
+            if (filePath == "*") {
+                string CacheDir = FileSystem.CacheDirectory;
+                foreach (string name in Directory.EnumerateFiles(CacheDir)) {
+                    File.Delete(name);
+                }
+            } else {
+                File.Delete(filePath);
+            }
+        }
+
         public static void photograph(string args) {
+#if IOS
+            bool rotate = true;
+#else
+            bool rotate = false;
+#endif
+
             MainThread.InvokeOnMainThreadAsync(async () => {
                 ResponseDto response= new ResponseDto();
                 try {
@@ -92,17 +109,18 @@ namespace MAUIcontainer.Common {
                         // save the file into local storage
                         string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
                         fileDto.FilePath = localFilePath;
-                        fileDto.Src = FileHelper.ThumbnailImage(await photo.OpenReadAsync());
-                        using Stream sourceStream = await photo.OpenReadAsync();
-                        
-                        using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
-                            await sourceStream.CopyToAsync(localFileStream);                            
+                        using (Stream sourceStream = await photo.OpenReadAsync()) {
+                            using (Stream trimStream = await FileHelper.ResizeImage(sourceStream, rotate)) {
+                                using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
+                                    await trimStream.CopyToAsync(localFileStream);
+                                    trimStream.Position= 0;
+                                    fileDto.Src = FileHelper.ThumbnailImage(trimStream);
+                                }
+                            }
                         }
-                       
                         response.Message = "Success";
                         response.StatusCode = System.Net.HttpStatusCode.OK;
                         response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
-
                     }
                 } catch (Exception) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;

@@ -6,7 +6,7 @@ public partial class ImageViewer : ContentPage
 	{
 		InitializeComponent();
         FilePathLabel.Text = $"File Name : {filePath.Split("/").Last()}";
-        FileViewWebView.Source = filePath;
+        FileViewImage.Source = filePath;
     }
     void onQuitButton(object sender, EventArgs e) {
         Navigation.PopModalAsync();

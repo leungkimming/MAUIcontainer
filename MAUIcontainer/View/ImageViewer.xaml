@@ -5,7 +5,7 @@
              Title="ImageViewer">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -16,7 +16,7 @@
                TextColor="Black"
                HorizontalOptions="Center"
                x:Name="FilePathLabel"/>
-        <Button Margin="3,0" Grid.Row="0" Grid.Column="1" BackgroundColor="Black"
+        <Button Margin="1,0" Grid.Row="0" Grid.Column="1" BackgroundColor="Black"
             FontSize="11" Text="Quit" FontFamily="Bold" TextColor="White"
             Clicked="onQuitButton"  />
         <ScrollView x:Name="scrollView"
@@ -25,11 +25,10 @@
             VerticalOptions="FillAndExpand" 
             VerticalScrollBarVisibility="Default"
             HorizontalScrollBarVisibility="Default">
-            <WebView
-                x:Name="FileViewWebView"
-                Grid.Row="0" 
-                HorizontalOptions="FillAndExpand" 
-                VerticalOptions="FillAndExpand" />
+            <Image
+                x:Name="FileViewImage"
+                HorizontalOptions="FillAndExpand"
+                />
         </ScrollView>
     </Grid>
 

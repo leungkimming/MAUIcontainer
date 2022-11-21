@@ -75,6 +75,7 @@
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
 	  <PackageReference Include="Plugin.Firebase" Version="1.2.1" />
+	  <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="2.88.3" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
 	  <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
 	</ItemGroup>
