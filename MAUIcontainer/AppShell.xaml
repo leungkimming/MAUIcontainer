@@ -13,4 +13,6 @@
         Title="AAD Authentication"
         ContentTemplate="{DataTemplate local:AADLogin}"
         Route="AADLoginPage" />
+    <MenuItem Text="Exit Blazor"
+          Command="{Binding ExitBlazorCommand}"/>
 </Shell>

@@ -42,7 +42,7 @@ namespace MAUIcontainer.Common {
         }
         public static void getPMessage(string AppId) {
             string pMessage = "";
-            int key = App.MessageQueue.Where(x => x.Value != null)
+            int key = App.MessageQueue.Where(x => (x.Value != null) && (x.Value.Data["App"] == AppId))
                 .FirstOrDefault().Key;
             App.errmessage += $"getPMessage key={key};";
             if (key != 0) {
@@ -77,6 +77,7 @@ namespace MAUIcontainer.Common {
         }
         public static void displayPhoto(string filePath) {
             Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
+            callback(promiseId, null);
         }
         public static void deletePhoto(string filePath) {
             if (filePath == "*") {
@@ -87,6 +88,7 @@ namespace MAUIcontainer.Common {
             } else {
                 File.Delete(filePath);
             }
+            callback(promiseId, null);
         }
 
         public static void photograph(string args) {

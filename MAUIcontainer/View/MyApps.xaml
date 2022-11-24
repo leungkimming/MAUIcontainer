@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MAUIcontainer.MyApps"
+             Title="MyApps">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="0,0" Grid.Row="0" BackgroundColor="{StaticResource Primary}">
+            <Label BackgroundColor="Transparent" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                   TextColor="AntiqueWhite" FontAttributes="Bold" Margin="4,0">MAUI Container App</Label>
+        </Grid>
+        <Grid Margin="0,0" Grid.Row="1" BackgroundColor="{StaticResource Yellow200Accent}">
+            <Label BackgroundColor="Transparent" Margin="4,0"  VerticalTextAlignment="Center" TextColor="{StaticResource Black}"
+                   HorizontalTextAlignment="Center">My Apps</Label>
+        </Grid>
+        <ScrollView x:Name="scrollView"
+           Grid.Row="2"
+           VerticalOptions="FillAndExpand" 
+           VerticalScrollBarVisibility="Always"
+           HorizontalScrollBarVisibility="Always">
+            <ListView x:Name="MyAppsList"
+                      ItemSelected="OnItemSelected" RowHeight="115"
+                      SeparatorColor="{StaticResource Blue100Accent}"
+                      ItemsSource="{Binding MyAppsSource}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                       <ImageCell ImageSource="{Binding Imagestream}"
+                           Text="{Binding Name}"
+                           Detail="{Binding Description}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollView>
+    </Grid>
+</ContentPage>

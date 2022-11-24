@@ -45,6 +45,7 @@ namespace MAUIcontainer {
                 }
 
                 SKData encoded = image.Encode();
+                image.Dispose();
                 Stream streamRotat = encoded.AsStream();
                 return streamRotat;
             } catch (Exception ex) {

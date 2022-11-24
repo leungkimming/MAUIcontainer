@@ -104,7 +104,7 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
                 App.errmessage += $"JS arg={arg.Substring(0, 15)};";
                 //System.Diagnostics.Debug.WriteLine("send:"+s_arg);
                 MainThread.BeginInvokeOnMainThread(() => view.EvaluateJavaScript(
-                    $"DotNet.invokeMethod('Client', 'setMessage', '{arg}' );", callback));
+                    $"DotNet.invokeMethod('{App.currentApp.BlazorNamespace}', 'setMessage', '{arg}' );", callback));
             });
         }
         
@@ -115,9 +115,13 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
 #if DEBUG
             isDebug = true;
 #endif
-            if (isDebug && (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodServerTrust)) {
-                completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
-                    NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));
+            if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodServerTrust) {
+                if (isDebug) {
+                    completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
+                        NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));
+                } else {
+                    completionHandler(NSUrlSessionAuthChallengeDisposition.PerformDefaultHandling, null);
+                }
             } else if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodNTLM) {
                 if (user != "") {
                     NSUrlCredential credentials = new NSUrlCredential(user, pw, persistence: NSUrlCredentialPersistence.ForSession);
@@ -149,7 +153,9 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
                     navigationAction.ShouldPerformDownload ||
                     ((navigationAction.NavigationType == WKNavigationType.Other) && (url != org_Url))) {
                 decisionHandler(WKNavigationActionPolicy.Cancel);
-                Browser.Default.OpenAsync(navigationAction.Request.Url, BrowserLaunchMode.SystemPreferred);
+                if (url.ToUpper().StartsWith("HTTPS://")) { 
+                    Browser.Default.OpenAsync(navigationAction.Request.Url, BrowserLaunchMode.SystemPreferred);
+                }
             } else
                 decisionHandler(WKNavigationActionPolicy.Allow);
         }
