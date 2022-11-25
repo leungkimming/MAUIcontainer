@@ -106,7 +106,11 @@ namespace MAUIcontainer.Common {
                         mediaPickerOptions.Title = args;
                         FileResult photo = await MediaPicker.Default.CapturePhotoAsync(mediaPickerOptions);
                         FileDto fileDto=new FileDto();
-                        fileDto.ContentType = photo.ContentType;
+                        if (photo.ContentType.StartsWith("image")) {
+                            fileDto.ContentType = photo.ContentType;
+                        } else {
+                            fileDto.ContentType = $"image/{photo.ContentType}";
+                        }
                         fileDto.Name = photo.FileName;
                         // save the file into local storage
                         string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
