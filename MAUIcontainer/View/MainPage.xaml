@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MAUIcontainer.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:MAUIcontainer.Controls"
+    >
+
+    <Grid>
+        <ScrollView x:Name="scrollView"
+                VerticalOptions="FillAndExpand" 
+                VerticalScrollBarVisibility="Always"
+                HorizontalScrollBarVisibility="Always">
+            <controls:HybridWebView
+                x:Name="MyWebView"
+                HorizontalOptions="FillAndExpand" 
+                VerticalOptions="FillAndExpand"
+                Source="{Binding Source}" />
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

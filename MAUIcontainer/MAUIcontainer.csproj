@@ -75,24 +75,28 @@
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
 	  <PackageReference Include="Plugin.Firebase" Version="1.2.1" />
+	  <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="2.88.3" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
 	  <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="AADLogin.xaml.cs">
+	  <Compile Update="View\AADLogin.xaml.cs">
 	    <DependentUpon>AADLogin.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="FileViewer.xaml">
+	  <MauiXaml Update="View\FileViewer.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="AADLogin.xaml">
+	  <MauiXaml Update="View\AADLogin.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Login.xaml">
+	  <MauiXaml Update="View\Login.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyApps.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

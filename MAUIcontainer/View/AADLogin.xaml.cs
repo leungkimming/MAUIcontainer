@@ -51,7 +51,13 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
     }
     async void onDebug(object sender, EventArgs e) {
         App.errmessage += "FCM Token:" + await GetCFMToken();
-        await DisplayAlert("Debug", $"{App.errmessage} ", "Ok");
+        bool choice = await DisplayAlert("Debug", $"{App.errmessage} ", "Share", "End");
+        if (choice) {
+            await Share.Default.RequestAsync(new ShareTextRequest {
+                Text = App.errmessage,
+                Title = "Share Text"
+            });
+        }
         App.errmessage = "";
     }
 
@@ -65,6 +71,7 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
             Login.IsEnabled = false;
+            App.IsLogin = true;
             if (isPush) {
                 await Navigation.PopModalAsync();
             }
@@ -75,10 +82,11 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         authService.LogoutAsync();
         Status.Text = "Status: Logout";
         Login.IsEnabled = true;
+        App.IsLogin = false;
 #if ANDROID
-        bool action  = await Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
+        bool action  = await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
         if (action) {
-            Application.Current?.Quit();
+            Microsoft.Maui.Controls.Application.Current?.Quit();
         }
 #endif
     }
@@ -86,5 +94,8 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         if (isPush) {
             await Navigation.PopModalAsync();
         }
+    }
+    public async void onReturnButton(object sender, EventArgs e) {
+        await Navigation.PopModalAsync();
     }
 }

@@ -42,7 +42,7 @@ namespace MAUIcontainer.Common {
         }
         public static void getPMessage(string AppId) {
             string pMessage = "";
-            int key = App.MessageQueue.Where(x => x.Value != null)
+            int key = App.MessageQueue.Where(x => (x.Value != null) && (x.Value.Data["App"] == AppId))
                 .FirstOrDefault().Key;
             App.errmessage += $"getPMessage key={key};";
             if (key != 0) {
@@ -53,5 +53,91 @@ namespace MAUIcontainer.Common {
             }
             callback(promiseId, pMessage);
         }
+        public static void uploadFiles(string files) {
+            MainThread.InvokeOnMainThreadAsync(async () => {
+                ResponseDto response= new ResponseDto();
+                try {
+                    var filesRequest=JsonSerializer.Deserialize<FilesRequest>(files);
+                    foreach (var file in filesRequest.Files) {
+                        APIService.UploadFileRequest(file, filesRequest.Request);
+                    }
+                    response.Message = "Success";
+                    response.StatusCode = System.Net.HttpStatusCode.OK;
+
+                } catch (Exception) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                    throw;
+                } finally {
+                    callback(promiseId, JsonSerializer.Serialize(response));
+                }
+
+
+            });
+        }
+        public static void displayPhoto(string filePath) {
+            Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
+            callback(promiseId, null);
+        }
+        public static void deletePhoto(string filePath) {
+            if (filePath == "*") {
+                string CacheDir = FileSystem.CacheDirectory;
+                foreach (string name in Directory.EnumerateFiles(CacheDir)) {
+                    File.Delete(name);
+                }
+            } else {
+                File.Delete(filePath);
+            }
+            callback(promiseId, null);
+        }
+
+        public static void photograph(string args) {
+#if IOS
+            bool rotate = true;
+#else
+            bool rotate = false;
+#endif
+
+            MainThread.InvokeOnMainThreadAsync(async () => {
+                ResponseDto response= new ResponseDto();
+                try {
+                    if (MediaPicker.Default.IsCaptureSupported) {
+                        MediaPickerOptions  mediaPickerOptions= new MediaPickerOptions();
+                        mediaPickerOptions.Title = args;
+                        FileResult photo = await MediaPicker.Default.CapturePhotoAsync(mediaPickerOptions);
+                        FileDto fileDto=new FileDto();
+                        if (photo.ContentType.StartsWith("image")) {
+                            fileDto.ContentType = photo.ContentType;
+                        } else {
+                            fileDto.ContentType = $"image/{photo.ContentType}";
+                        }
+                        fileDto.Name = photo.FileName;
+                        // save the file into local storage
+                        string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                        fileDto.FilePath = localFilePath;
+                        using (Stream sourceStream = await photo.OpenReadAsync()) {
+                            using (Stream trimStream = await FileHelper.ResizeImage(sourceStream, rotate)) {
+                                using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
+                                    await trimStream.CopyToAsync(localFileStream);
+                                    trimStream.Position= 0;
+                                    fileDto.Src = FileHelper.ThumbnailImage(trimStream);
+                                }
+                            }
+                        }
+                        response.Message = "Success";
+                        response.StatusCode = System.Net.HttpStatusCode.OK;
+                        response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
+                    }
+                } catch (Exception) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                    throw;
+                } finally {
+                    callback(promiseId, JsonSerializer.Serialize(response));
+                }
+
+            });
+        }
+
     }
 }
