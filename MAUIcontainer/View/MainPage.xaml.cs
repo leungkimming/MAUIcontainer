@@ -30,7 +30,7 @@ public partial class MainPage : ContentPage {
         //if not AAD authen, force authen first. Then, determine what App to load
         string token = BlazorCallHelper.getAADToken();
         if (token == null) {
-            MAUIcontainer.App.Current.ModalPopping += LoadApp;
+            MAUIcontainer.App.Current.ModalPopped += LoadApp;
             Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin(true));
         } else {
             App.IsLogin = true;
@@ -38,7 +38,9 @@ public partial class MainPage : ContentPage {
         }
     }
     public async void LoadApp(object sender, EventArgs e) {
-        MAUIcontainer.App.Current.ModalPopping -= LoadApp;
+        if (e != null && (e as ModalPoppedEventArgs).Modal.ToString() == "MAUIcontainer.AADLogin") {
+            MAUIcontainer.App.Current.ModalPopped -= LoadApp;
+        }
         // search PM in queue, launch the PM's App if available.
         int key = 0;
         MyApp app = null;
@@ -63,12 +65,14 @@ public partial class MainPage : ContentPage {
             }
         } else {
             // Else, let user select which App to launch
-            MAUIcontainer.App.Current.ModalPopping += LoadUserApp;
+            MAUIcontainer.App.Current.ModalPopped += LoadUserApp;
             await Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new MyApps());
         }
     }
     public void LoadUserApp(object sender, EventArgs e) {
-        MAUIcontainer.App.Current.ModalPopping -= LoadUserApp;
+        if (e != null && (e as ModalPoppedEventArgs).Modal.ToString() == "MAUIcontainer.MyApps") {
+            MAUIcontainer.App.Current.ModalPopped -= LoadUserApp;
+        }
         if (App.currentApp != null) {
             vm.UrlText = App.currentApp.Name;
             vm.Source = App.currentApp.BlazorUrl;

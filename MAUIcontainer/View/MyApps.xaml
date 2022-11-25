@@ -12,6 +12,10 @@
         <Grid Margin="0,0" Grid.Row="0" BackgroundColor="{StaticResource Primary}">
             <Label BackgroundColor="Transparent" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                    TextColor="AntiqueWhite" FontAttributes="Bold" Margin="4,0">MAUI Container App</Label>
+            <Button Text="Login/out"
+                VerticalOptions="Center" Padding="1" Margin="7,0"
+                HorizontalOptions="End"
+                Clicked="onLoginButton" />
         </Grid>
         <Grid Margin="0,0" Grid.Row="1" BackgroundColor="{StaticResource Yellow200Accent}">
             <Label BackgroundColor="Transparent" Margin="4,0"  VerticalTextAlignment="Center" TextColor="{StaticResource Black}"

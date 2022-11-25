@@ -4,20 +4,47 @@
              x:Class="MAUIcontainer.AADLogin"
              Title="Login">
     <Grid>
-        <StackLayout Margin="20">
-            <StackLayout Margin="0,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="250"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" BackgroundColor="{StaticResource Primary}">
+            <Label BackgroundColor="Transparent" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                   TextColor="AntiqueWhite" FontAttributes="Bold" Margin="4,0">MAUI Container App</Label>
+            <Button Text="Return"
+                VerticalOptions="Center" Padding="1" Margin="20,0"
+                HorizontalOptions="End"
+                Clicked="onReturnButton" />
+        </Grid>
+
+        <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Padding="10">
+            <StackLayout>
                 <Label FontSize="32" Text="Azure AD Authentication"/>
             </StackLayout>
             <StackLayout>
                 <Label FontSize="16" x:Name="Status"/>
             </StackLayout>
-            <Button Margin="0,15" Text="Login" FontFamily="OpenSansBold" Clicked="onLogin" x:Name="Login"  />
-            <Button Margin="0,15" Text="Logout" FontFamily="OpenSansBold" Clicked="onLogout"  />
-            <Button Margin="100,100,0,0" Text="Opt for Windows Authentication" FontFamily="OpenSansBold" 
+        </StackLayout>
+
+        <StackLayout Grid.Row="2" Grid.Column="0">
+            <Button Margin="10,10,10,10" Text="Login" FontFamily="OpenSansBold" Clicked="onLogin" x:Name="Login"  />
+        </StackLayout>
+        <StackLayout Grid.Row="2" Grid.Column="1">
+            <Button Margin="10,10,10,10" Text="Logout" FontFamily="OpenSansBold" Clicked="onLogout"  />
+        </StackLayout>
+        
+        <StackLayout Grid.Row="3" Grid.Column="0" VerticalOptions="End">
+            <Button Margin="10,10,10,10" Text="Opt for Windows Authentication" FontFamily="OpenSansBold" 
                     Clicked="useNTLM" x:Name="useNTLMButton"/>
-            <StackLayout>
-                <Button Margin="0,15" Text="Debug" FontFamily="OpenSansBold" Clicked="onDebug"  />
-            </StackLayout>
+        </StackLayout>
+        <StackLayout Grid.Row="3" Grid.Column="1" VerticalOptions="End">
+            <Button Margin="10,10,10,10" Text="Debug" FontFamily="OpenSansBold" Clicked="onDebug"  />
         </StackLayout>
     </Grid>
 </ContentPage>

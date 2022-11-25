@@ -95,4 +95,7 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
             await Navigation.PopModalAsync();
         }
     }
+    public async void onReturnButton(object sender, EventArgs e) {
+        await Navigation.PopModalAsync();
+    }
 }

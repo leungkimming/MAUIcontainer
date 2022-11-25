@@ -9,10 +9,10 @@
         Title="MAUI Container App"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-    <ShellContent
+    <!--<ShellContent
         Title="AAD Authentication"
         ContentTemplate="{DataTemplate local:AADLogin}"
-        Route="AADLoginPage" />
-    <MenuItem Text="Exit Blazor"
+        Route="AADLoginPage" />-->
+    <MenuItem Text="Exit Current App"
           Command="{Binding ExitBlazorCommand}"/>
 </Shell>
