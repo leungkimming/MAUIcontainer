@@ -15,12 +15,14 @@ namespace MAUIcontainer {
         static SKBitmap m_resizedBm;
         static SKBitmap m_rotatedBm;
         public static string ThumbnailImage(Stream imagData) {
-            Microsoft.Maui.Graphics.IImage image =PlatformImage.FromStream(imagData);
-            if (image != null) {
-                Microsoft.Maui.Graphics.IImage newImage = image.Downsize(100, true);
-                return newImage.AsBase64();
+            using (Microsoft.Maui.Graphics.IImage image = PlatformImage.FromStream(imagData)) {
+                if (image != null) {
+                    using (Microsoft.Maui.Graphics.IImage newImage = image.Downsize(100, true)) {
+                        return newImage.AsBase64();
+                    }
+                }
+                return string.Empty;
             }
-            return string.Empty;
         }
         public static async Task<Stream> ResizeImage(Stream stream, bool rotate) {
             m_bm = SKBitmap.Decode(stream);

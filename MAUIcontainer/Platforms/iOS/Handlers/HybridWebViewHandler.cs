@@ -111,17 +111,13 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
         [Foundation.Export("webView:didReceiveAuthenticationChallenge:completionHandler:")]
         public override void DidReceiveAuthenticationChallenge(WKWebView webView, NSUrlAuthenticationChallenge challenge,
             Action<NSUrlSessionAuthChallengeDisposition, NSUrlCredential> completionHandler) {
-            bool isDebug = false;
-#if DEBUG
-            isDebug = true;
-#endif
             if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodServerTrust) {
-                if (isDebug) {
-                    completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
-                        NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));
-                } else {
-                    completionHandler(NSUrlSessionAuthChallengeDisposition.PerformDefaultHandling, null);
-                }
+#if DEBUG
+                completionHandler(NSUrlSessionAuthChallengeDisposition.UseCredential,
+                    NSUrlCredential.FromTrust(trust: challenge.ProtectionSpace.ServerSecTrust));
+#else
+                completionHandler(NSUrlSessionAuthChallengeDisposition.PerformDefaultHandling, null);
+#endif
             } else if (challenge.ProtectionSpace.AuthenticationMethod == NSUrlProtectionSpace.AuthenticationMethodNTLM) {
                 if (user != "") {
                     NSUrlCredential credentials = new NSUrlCredential(user, pw, persistence: NSUrlCredentialPersistence.ForSession);
