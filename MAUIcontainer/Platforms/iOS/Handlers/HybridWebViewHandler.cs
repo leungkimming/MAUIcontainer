@@ -147,7 +147,7 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
             var url = navigationAction.Request.Url.AbsoluteString;
             if ((navigationAction.NavigationType == WKNavigationType.LinkActivated) ||
                     navigationAction.ShouldPerformDownload ||
-                    ((navigationAction.NavigationType == WKNavigationType.Other) && (url != org_Url))) {
+                    ((navigationAction.NavigationType == WKNavigationType.Other) && (!url.StartsWith(org_Url)))) {
                 decisionHandler(WKNavigationActionPolicy.Cancel);
                 if (url.ToUpper().StartsWith("HTTPS://")) { 
                     Browser.Default.OpenAsync(navigationAction.Request.Url, BrowserLaunchMode.SystemPreferred);
