@@ -3,18 +3,24 @@ using System.IO;
 using System.Reflection;
 using SkiaSharp;
 using SkiaSharp.Views;
+using System.Text;
+using System.Text.Json;
 
 namespace MAUIcontainer {
-    public static class FileHelper {
+    public class FileHelper : IFileHelper {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="imagePath"></param>
         /// <returns></returns>
-        static SKBitmap m_bm;
-        static SKBitmap m_resizedBm;
-        static SKBitmap m_rotatedBm;
-        public static string ThumbnailImage(Stream imagData) {
+        SKBitmap m_bm;
+        SKBitmap m_resizedBm;
+        SKBitmap m_rotatedBm;
+        public IAPIService _APIService { get; set; }
+        public FileHelper(IAPIService service) {
+            _APIService = service;        
+        }
+        public string ThumbnailImage(Stream imagData) {
             using (Microsoft.Maui.Graphics.IImage image = PlatformImage.FromStream(imagData)) {
                 if (image != null) {
                     using (Microsoft.Maui.Graphics.IImage newImage = image.Downsize(100, true)) {
@@ -24,7 +30,7 @@ namespace MAUIcontainer {
                 return string.Empty;
             }
         }
-        public static async Task<Stream> ResizeImage(Stream stream, bool rotate) {
+        public async Task<Stream> ResizeImage(Stream stream, bool rotate) {
             m_bm = SKBitmap.Decode(stream);
             Int32 reference = m_bm.Width > m_bm.Height ? m_bm.Width : m_bm.Height;
             double factor = 1;
@@ -55,7 +61,7 @@ namespace MAUIcontainer {
                 return null;
             }
         }
-        public static SKBitmap Rotate() {
+        public SKBitmap Rotate() {
             using (var bitmap = m_resizedBm) {
                 var rotated = new SKBitmap(bitmap.Height, bitmap.Width);
                 using (var surface = new SKCanvas(rotated)) {
@@ -65,6 +71,69 @@ namespace MAUIcontainer {
                 }
                 return rotated;
             }
+        }
+        public async Task<ResponseDto> CapturePhoto(string args) {
+#if IOS
+            bool rotate = true;
+#else
+            bool rotate = false;
+#endif
+            ResponseDto response = new ResponseDto();
+
+            await MainThread.InvokeOnMainThreadAsync(async () => {
+                try {
+                    if (MediaPicker.Default.IsCaptureSupported) {
+                        MediaPickerOptions mediaPickerOptions = new MediaPickerOptions();
+                        mediaPickerOptions.Title = args;
+                        FileResult photo = await MediaPicker.Default.CapturePhotoAsync(mediaPickerOptions);
+                        FileDto fileDto = new FileDto();
+                        if (photo.ContentType.StartsWith("image")) {
+                            fileDto.ContentType = photo.ContentType;
+                        } else {
+                            fileDto.ContentType = $"image/{photo.ContentType}";
+                        }
+                        fileDto.Name = photo.FileName;
+                        // save the file into local storage
+                        string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                        fileDto.FilePath = localFilePath;
+                        using (Stream sourceStream = await photo.OpenReadAsync()) {
+                            using (Stream trimStream = await ResizeImage(sourceStream, rotate)) {
+                                using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
+                                    await trimStream.CopyToAsync(localFileStream);
+                                    trimStream.Position = 0;
+                                    fileDto.Src = ThumbnailImage(trimStream);
+                                }
+                            }
+                        }
+                        response.Message = "Success";
+                        response.StatusCode = System.Net.HttpStatusCode.OK;
+                        response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
+                    }
+                } catch (Exception) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                }
+            });
+
+            return response;
+        }
+        public async Task<ResponseDto> uploadFiles(string files) {
+            ResponseDto response = new ResponseDto();
+            await MainThread.InvokeOnMainThreadAsync(async () => {
+                try {
+                    var filesRequest = JsonSerializer.Deserialize<FilesRequest>(files);
+                    foreach (var file in filesRequest.Files) {
+                        _APIService.UploadFileRequest(file, filesRequest.Request);
+                    }
+                    response.Message = "Success";
+                    response.StatusCode = System.Net.HttpStatusCode.OK;
+
+                } catch (Exception) {
+                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.Message = "Fail";
+                }
+            });
+            return response;
         }
     }
 }

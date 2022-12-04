@@ -10,13 +10,15 @@ using MAUIcontainer;
 using MAUIcontainer.Controls;
 using Plugin.Firebase.CloudMessaging;
 
-namespace MAUIcontainer.Common {
+namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
-        public class CallMAUIjson {
-            public string method { get; set; }
-            public string promiseId { get; set; }
-            public string args { get; set; }
+        private static IFileHelper _fileHelper;
+        private static IAuthService _authService;
+        public static void Configure(IFileHelper fileHelper, IAuthService authService) {
+            _fileHelper = fileHelper;
+            _authService = authService;
         }
+
         public delegate void Callback(string promiseId, string result);
         public static Callback callback = null;
         public static string promiseId { get; set; }
@@ -27,11 +29,10 @@ namespace MAUIcontainer.Common {
             typeof(BlazorCallHelper).GetMethod(callMAUIjson.method).Invoke(null, new object[] { callMAUIjson.args });
         }
         public static string getAADToken() {
-            var authService = new AuthService(); // most likely you will inject it in constructor, but for simplicity let's initialize it here
             string accessToken = null;
-            var status = Task.Run(async () => await authService.LoginStatus()).Result;
+            var status = Task.Run(async () => await _authService.LoginStatus()).Result;
             if (status != null) {
-                var result = authService.LoginAsync(CancellationToken.None).Result;
+                var result = _authService.LoginAsync(CancellationToken.None).Result;
                 accessToken = result?.AccessToken;
             }
             return accessToken;
@@ -53,27 +54,9 @@ namespace MAUIcontainer.Common {
             }
             callback(promiseId, pMessage);
         }
-        public static void uploadFiles(string files) {
-            MainThread.InvokeOnMainThreadAsync(async () => {
-                ResponseDto response= new ResponseDto();
-                try {
-                    var filesRequest=JsonSerializer.Deserialize<FilesRequest>(files);
-                    foreach (var file in filesRequest.Files) {
-                        APIService.UploadFileRequest(file, filesRequest.Request);
-                    }
-                    response.Message = "Success";
-                    response.StatusCode = System.Net.HttpStatusCode.OK;
-
-                } catch (Exception) {
-                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                    response.Message = "Fail";
-                    throw;
-                } finally {
-                    callback(promiseId, JsonSerializer.Serialize(response));
-                }
-
-
-            });
+        public static async void uploadFiles(string files) {
+            ResponseDto response = await _fileHelper.uploadFiles(files);
+            callback(promiseId, JsonSerializer.Serialize(response));
         }
         public static void displayPhoto(string filePath) {
             Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
@@ -91,53 +74,9 @@ namespace MAUIcontainer.Common {
             callback(promiseId, null);
         }
 
-        public static void photograph(string args) {
-#if IOS
-            bool rotate = true;
-#else
-            bool rotate = false;
-#endif
-
-            MainThread.InvokeOnMainThreadAsync(async () => {
-                ResponseDto response= new ResponseDto();
-                try {
-                    if (MediaPicker.Default.IsCaptureSupported) {
-                        MediaPickerOptions  mediaPickerOptions= new MediaPickerOptions();
-                        mediaPickerOptions.Title = args;
-                        FileResult photo = await MediaPicker.Default.CapturePhotoAsync(mediaPickerOptions);
-                        FileDto fileDto=new FileDto();
-                        if (photo.ContentType.StartsWith("image")) {
-                            fileDto.ContentType = photo.ContentType;
-                        } else {
-                            fileDto.ContentType = $"image/{photo.ContentType}";
-                        }
-                        fileDto.Name = photo.FileName;
-                        // save the file into local storage
-                        string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
-                        fileDto.FilePath = localFilePath;
-                        using (Stream sourceStream = await photo.OpenReadAsync()) {
-                            using (Stream trimStream = await FileHelper.ResizeImage(sourceStream, rotate)) {
-                                using (FileStream localFileStream = File.OpenWrite(localFilePath)) {
-                                    await trimStream.CopyToAsync(localFileStream);
-                                    trimStream.Position= 0;
-                                    fileDto.Src = FileHelper.ThumbnailImage(trimStream);
-                                }
-                            }
-                        }
-                        response.Message = "Success";
-                        response.StatusCode = System.Net.HttpStatusCode.OK;
-                        response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
-                    }
-                } catch (Exception) {
-                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                    response.Message = "Fail";
-                    throw;
-                } finally {
-                    callback(promiseId, JsonSerializer.Serialize(response));
-                }
-
-            });
+        public static async void photograph(string args) {
+            ResponseDto response = await _fileHelper.CapturePhoto(args);
+            callback(promiseId, JsonSerializer.Serialize(response));
         }
-
     }
 }

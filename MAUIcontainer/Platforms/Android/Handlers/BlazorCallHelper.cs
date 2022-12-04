@@ -9,7 +9,7 @@ using Plugin.Fingerprint.Abstractions;
 using MAUIcontainer;
 using MAUIcontainer.Controls;
 
-namespace MAUIcontainer.Common {
+namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
         [SupportedOSPlatform("android31.0")]
         public static void getFingerPrint(string reason) {

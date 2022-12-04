@@ -6,11 +6,10 @@ using System.Net.Http.Json;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using MAUIcontainer.Common;
 
-namespace MAUIcontainer{
-    public static partial class APIService {
-        private static void RefreshToken(HttpClient request, RequestDto requestDto) {
+namespace MAUIcontainer {
+    public partial class APIService : IAPIService {
+        public void RefreshToken(HttpClient request, RequestDto requestDto) {
             DevHttpsConnectionHelper devHttpsConnectionHelper=new DevHttpsConnectionHelper();
             devHttpsConnectionHelper.HttpClient.DefaultRequestHeaders.Add("authorization", "Bearer " + BlazorCallHelper.getAADToken());
             var response=devHttpsConnectionHelper.HttpClient.GetAsync($"https://{requestDto.Domain}/Login?force=false").Result;
@@ -25,7 +24,7 @@ namespace MAUIcontainer{
             }
         }
 
-        public static void UploadFileRequest(FileDto file, RequestDto requestDto) {
+        public void UploadFileRequest(FileDto file, RequestDto requestDto) {
             bool success = false;
             int retryCount = 3;
             int currentCount = 0;
@@ -45,7 +44,7 @@ namespace MAUIcontainer{
             }
             File.Delete(file.FilePath);
         }
-        public static MyAppsResponse GetMyApps() {
+        public MyAppsResponse GetMyApps() {
             //Should call a Apps Management API to retrieve based on authentication token.
             DevHttpsConnectionHelper devHttpsConnectionHelper = new DevHttpsConnectionHelper();
             var response = devHttpsConnectionHelper.HttpClient.GetAsync($"https://mauiclient.z23.web.core.windows.net/myapps.json?dt={DateTime.Now.ToLongTimeString()}").Result;

@@ -6,20 +6,21 @@ namespace MAUIcontainer;
 
 public partial class AADLogin : ContentPage, INotifyPropertyChanged {
     public bool isPush { get; set; }
+    public static IAuthService authService { get; set; }
     public static string errmessage { get; set; }
-    public AADLogin()
-	{
-		InitializeComponent();
-        useNTLMButton.IsVisible = false;
-        var authService = new AuthService();
+    public AADLogin(IAuthService _authService) {
+        authService = _authService;
+        InitializeComponent();
+        useNTLMButton.IsVisible = true;
+        isPush = false;
         getStatus();
     }
-    public AADLogin(bool _isPush) : this() {
-        this.isPush = _isPush;
-        useNTLMButton.IsVisible = true;
+    public AADLogin setIsPush() {
+        this.isPush = true;
+        useNTLMButton.IsVisible = false;
+        return this;
     }
     async void getStatus() {
-        var authService = new AuthService();
         var result = await authService.LoginStatus();
         if (result != null) {
             Status.Text = "Status: Authenticated" +
@@ -62,7 +63,6 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
     }
 
     async void onLogin(object sender, EventArgs e) {
-        var authService = new AuthService();
         var result = await authService.LoginAsync(CancellationToken.None);
         if (result != null) {
             Status.Text = "Status: Authenticated" +
@@ -78,7 +78,6 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         }
     }
     async void onLogout(object sender, EventArgs e) {
-        var authService = new AuthService();
         authService.LogoutAsync();
         Status.Text = "Status: Logout";
         Login.IsEnabled = true;

@@ -4,7 +4,7 @@ using Android.Webkit;
 using Java.Nio.Channels;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
-using MAUIcontainer.Common;
+
 using MAUIcontainer.Platforms.Droid.Renderers;
 
 namespace MAUIcontainer.Controls {

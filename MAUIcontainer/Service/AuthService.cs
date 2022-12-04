@@ -5,17 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace MAUIcontainer {
-    public class AuthService {
+    public class AuthService : IAuthService {
         private readonly IPublicClientApplication authenticationClient;
-        public AuthService() {
-            authenticationClient = PublicClientApplicationBuilder.Create(MAUIcontainer.Common.Constants.ApplicationId)
+        private string ApplicationId;
+        private string[] Scopes;
+        public AuthService(IConfiguration config) {
+            Scopes = config.GetSection("Scopes").Get<string[]>();
+            ApplicationId = config.GetSection("ApplicationId").Value;
+
+            authenticationClient = PublicClientApplicationBuilder.Create(ApplicationId)
                 //.WithB2CAuthority(Constants.AuthoritySignIn) // uncomment to support B2C
 #if WINDOWS
             .WithRedirectUri("http://localhost");
 #else
-                .WithRedirectUri($"msal{MAUIcontainer.Common.Constants.ApplicationId}://auth")
+                .WithRedirectUri($"msal{ApplicationId}://auth")
 #endif
 #if IOS
                 .WithIosKeychainSecurityGroup("com.microsoft.adalcache")
@@ -24,8 +31,7 @@ namespace MAUIcontainer {
         }
         public async Task<string> GetAccessToken(CancellationToken cancellationToken) {
             try {
-                var result = authenticationClient
-                    .UserTokenCache;
+                var result = authenticationClient.UserTokenCache;
                 return "";
             } catch (MsalClientException) {
                 return null;
@@ -38,7 +44,7 @@ namespace MAUIcontainer {
                 bool tryInteractiveLogin = false;
                 try {
                     result = await authenticationClient
-                        .AcquireTokenSilent(MAUIcontainer.Common.Constants.Scopes, accounts.FirstOrDefault())
+                        .AcquireTokenSilent(Scopes, accounts.FirstOrDefault())
                         .ExecuteAsync(cancellationToken);
                     return result;
                 } catch (MsalUiRequiredException) {
@@ -49,7 +55,7 @@ namespace MAUIcontainer {
                 if (tryInteractiveLogin) {
                     result = await authenticationClient
 
-                    .AcquireTokenInteractive(MAUIcontainer.Common.Constants.Scopes)
+                    .AcquireTokenInteractive(Scopes)
 
                     .WithPrompt(Prompt.ForceLogin)
 #if ANDROID
@@ -73,7 +79,7 @@ namespace MAUIcontainer {
             try {
                 var accounts = await authenticationClient.GetAccountsAsync();
                 result = await authenticationClient
-                    .AcquireTokenSilent(MAUIcontainer.Common.Constants.Scopes, accounts.FirstOrDefault())
+                    .AcquireTokenSilent(Scopes, accounts.FirstOrDefault())
                     .ExecuteAsync(CancellationToken.None);
                 return result;
             } catch (Exception e) { }
