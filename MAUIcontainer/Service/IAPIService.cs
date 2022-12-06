@@ -11,6 +11,7 @@ namespace MAUIcontainer {
     public interface IAPIService {
         public void RefreshToken(HttpClient request, RequestDto requestDto);
         public void UploadFileRequest(FileDto file, RequestDto requestDto);
+        public void UploadImageAndThumbnailRequest(FileDto file, RequestDto requestDto);
         public MyAppsResponse GetMyApps();
     }
 }

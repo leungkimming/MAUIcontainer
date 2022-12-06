@@ -17,14 +17,14 @@ namespace MAUIcontainer {
         public PhotoHelper(IAPIService service) {
             _APIService = service;        
         }
-        public string ThumbnailImage(Stream imagData) {
+        public (string,Stream) ThumbnailImage(Stream imagData) {
             using (Microsoft.Maui.Graphics.IImage image = PlatformImage.FromStream(imagData)) {
                 if (image != null) {
                     using (Microsoft.Maui.Graphics.IImage newImage = image.Downsize(100, true)) {
-                        return newImage.AsBase64();
+                        return (newImage.AsBase64(),newImage.AsStream());
                     }
                 }
-                return string.Empty;
+                return (string.Empty,null);
             }
         }
         public async Task<ResponseDto> CapturePhoto(string args) {
@@ -57,7 +57,11 @@ namespace MAUIcontainer {
                 await stream.CopyToAsync(localFileStream);
 //                await MediaGallery.SaveAsync(MediaFileType.Image, stream, App.currentApp.Name);
                 stream.Position = 0;
-                fileDto.Src = ThumbnailImage(stream);
+                string thumbnailImageLocalFilePath = Path.Combine(FileSystem.CacheDirectory, $"thumbnail{fileDto.Name}");
+                using FileStream thumbnailImagelocalFileStream = File.OpenWrite(thumbnailImageLocalFilePath);
+                var thumbnailImage=ThumbnailImage(stream);
+                fileDto.Src = thumbnailImage.Item1;
+                await thumbnailImage.Item2.CopyToAsync(thumbnailImagelocalFileStream);
                 response.Message = "Success";
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Content = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(fileDto)));
@@ -73,7 +77,7 @@ namespace MAUIcontainer {
                 try {
                     var filesRequest = JsonSerializer.Deserialize<FilesRequest>(files);
                     foreach (var file in filesRequest.Files) {
-                        _APIService.UploadFileRequest(file, filesRequest.Request);
+                        _APIService.UploadImageAndThumbnailRequest(file, filesRequest.Request);
                     }
                     response.Message = "Success";
                     response.StatusCode = System.Net.HttpStatusCode.OK;
