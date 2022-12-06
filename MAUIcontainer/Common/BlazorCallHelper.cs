@@ -12,9 +12,9 @@ using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
-        private static IFileHelper _fileHelper;
+        private static IPhotoHelper _fileHelper;
         private static IAuthService _authService;
-        public static void Configure(IFileHelper fileHelper, IAuthService authService) {
+        public static void Configure(IPhotoHelper fileHelper, IAuthService authService) {
             _fileHelper = fileHelper;
             _authService = authService;
         }
@@ -59,7 +59,11 @@ namespace MAUIcontainer {
             callback(promiseId, JsonSerializer.Serialize(response));
         }
         public static void displayPhoto(string filePath) {
+#if IOS
+            Application.Current.MainPage.Navigation.PushModalAsync(new FileViewer(filePath));
+#else
             Application.Current.MainPage.Navigation.PushModalAsync(new ImageViewer(filePath));
+#endif
             callback(promiseId, null);
         }
         public static void deletePhoto(string filePath) {

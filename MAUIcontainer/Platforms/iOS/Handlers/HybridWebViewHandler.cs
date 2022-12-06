@@ -3,7 +3,6 @@ using Foundation;
 using Microsoft.Maui.Handlers;
 using ObjCRuntime;
 using System;
-using System.Management;
 using System.Runtime.Versioning;
 using WebKit;
 using MAUIcontainer.Controls;

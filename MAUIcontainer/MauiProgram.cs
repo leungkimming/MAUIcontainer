@@ -1,8 +1,5 @@
 ﻿
 using MAUIcontainer.Controls;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Shared;
@@ -43,7 +40,7 @@ public static class MauiProgram {
         var app = builder.Build();
         using (var scope = app.Services.CreateScope()) {
             BlazorCallHelper.Configure(
-                scope.ServiceProvider.GetRequiredService<IFileHelper>(),
+                scope.ServiceProvider.GetRequiredService<IPhotoHelper>(),
                 scope.ServiceProvider.GetRequiredService<IAuthService>()
             );
         }
@@ -51,7 +48,7 @@ public static class MauiProgram {
     }
     private static MauiAppBuilder RegisterServices(this MauiAppBuilder builder) {
         builder.Services
-                .AddSingleton<IFileHelper, FileHelper>()
+                .AddSingleton<IPhotoHelper, PhotoHelper>()
                 .AddSingleton<IAuthService, AuthService>()
                 .AddSingleton<IAPIService, APIService>()
                 .AddTransient<AADLogin>()
