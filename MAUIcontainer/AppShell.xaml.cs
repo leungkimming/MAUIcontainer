@@ -7,7 +7,8 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
         ExitBlazorCommand = new Command(OnBlazorExitClicked);
-        BindingContext = this;
+        BindingContext = this;      
+        Shell.SetNavBarIsVisible(ShellBar,false);
     }
     public void OnBlazorExitClicked() {
         App.mainpage.onQuitButton(this, null);
