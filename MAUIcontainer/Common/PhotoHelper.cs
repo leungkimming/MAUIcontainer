@@ -45,17 +45,17 @@ namespace MAUIcontainer {
                     response.Message = "Media write access denied!";
                 }
                 file = await MediaGallery.CapturePhotoAsync(cts.Token);
-                await Task.Delay(100);
+                await Task.Delay(200);
                 FileDto fileDto = new FileDto();
                 fileDto.ContentType = file.ContentType;
                 fileDto.Name = $"{file.NameWithoutExtension}.{file.Extension}";
                 // save the file into local storage
                 string localFilePath = Path.Combine(FileSystem.CacheDirectory, fileDto.Name);
                 fileDto.FilePath = localFilePath;
-//                await Task.Delay(100);
+                await Task.Delay(100);
                 using var stream = await file.OpenReadAsync();
                 using FileStream localFileStream = File.OpenWrite(localFilePath);
-//                await Task.Delay(200);
+                await Task.Delay(200);
                 await stream.CopyToAsync(localFileStream);
 //                await MediaGallery.SaveAsync(MediaFileType.Image, stream, App.currentApp.Name);
                 stream.Position = 0;

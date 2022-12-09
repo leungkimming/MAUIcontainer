@@ -30,7 +30,11 @@
 	  <CodesignKey>Apple Development: Michael Leung (298MBQXBL5)</CodesignKey>
 	  <CodesignProvision>MAUI Container Development Profile</CodesignProvision>
 	</PropertyGroup>
-
+	
+	<PropertyGroup>
+		<UseInterpreter>true</UseInterpreter>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
