@@ -6,11 +6,10 @@ using System.Net.Http.Json;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using MAUIcontainer.Common;
 
-namespace MAUIcontainer{
-    public static partial class APIService {
-        private static void RefreshToken(HttpClient request, RequestDto requestDto) {
+namespace MAUIcontainer {
+    public partial class APIService : IAPIService {
+        public void RefreshToken(HttpClient request, RequestDto requestDto) {
             DevHttpsConnectionHelper devHttpsConnectionHelper=new DevHttpsConnectionHelper();
             devHttpsConnectionHelper.HttpClient.DefaultRequestHeaders.Add("authorization", "Bearer " + BlazorCallHelper.getAADToken());
             var response=devHttpsConnectionHelper.HttpClient.GetAsync($"https://{requestDto.Domain}/Login?force=false").Result;
@@ -25,7 +24,7 @@ namespace MAUIcontainer{
             }
         }
 
-        public static void UploadFileRequest(FileDto file, RequestDto requestDto) {
+        public void UploadFileRequest(FileDto file, RequestDto requestDto) {
             bool success = false;
             int retryCount = 3;
             int currentCount = 0;
@@ -45,7 +44,32 @@ namespace MAUIcontainer{
             }
             File.Delete(file.FilePath);
         }
-        public static MyAppsResponse GetMyApps() {
+        public void UploadImageAndThumbnailRequest(FileDto file, RequestDto requestDto) {
+            bool success = false;
+            int retryCount = 3;
+            int currentCount = 0;
+            DevHttpsConnectionHelper devHttpsConnectionHelper=new DevHttpsConnectionHelper();
+            RefreshToken(devHttpsConnectionHelper.HttpClient, requestDto);
+            devHttpsConnectionHelper.HttpClient.DefaultRequestHeaders.Add("cache-control", "no-cache");
+            var fileStreamContent = new StreamContent(File.OpenRead(file.FilePath));
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"{file.ContentType}");
+            using var multipartFormContent = new MultipartFormDataContent();
+            multipartFormContent.Add(fileStreamContent, name: "files", fileName: file.Name);
+            var thumbnailFilePath = file.FilePath.Replace(file.Name, $"thumbnail{file.Name}");
+            var thumbnailStreamContent = new StreamContent(File.OpenRead(thumbnailFilePath));
+            thumbnailStreamContent.Headers.ContentType = new MediaTypeHeaderValue($"{file.ContentType}");
+            multipartFormContent.Add(thumbnailStreamContent, name: "files", fileName: file.Name);
+            while (!success && currentCount < retryCount) {
+                var response = devHttpsConnectionHelper.HttpClient.PostAsync(requestDto.Uri,multipartFormContent).Result;
+                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted) {
+                    success = true;
+                }
+                currentCount = currentCount + 1;
+            }
+            File.Delete(file.FilePath);
+            File.Delete(thumbnailFilePath);
+        }
+        public MyAppsResponse GetMyApps() {
             //Should call a Apps Management API to retrieve based on authentication token.
             DevHttpsConnectionHelper devHttpsConnectionHelper = new DevHttpsConnectionHelper();
             var response = devHttpsConnectionHelper.HttpClient.GetAsync($"https://mauiclient.z23.web.core.windows.net/myapps.json?dt={DateTime.Now.ToLongTimeString()}").Result;

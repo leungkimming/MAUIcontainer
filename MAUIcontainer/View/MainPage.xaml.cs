@@ -4,7 +4,6 @@ using Microsoft.Identity.Client;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using MAUIcontainer.Common;
 using MAUIcontainer.ViewModels;
 using Plugin.Firebase.CloudMessaging;
 using System.Text.Json;
@@ -14,7 +13,9 @@ public partial class MainPage : ContentPage {
     public IPublicClientApplication IdentityClient { get; set; }
     MainPageViewModel vm;
     public JavaScriptActionHandler jsActionHandler { get; set; }
-    public MainPage() {
+    public IServiceProvider serviceProvider { get; set; }
+    public MainPage(IServiceProvider provider) {
+        this.serviceProvider = provider;
         InitializeComponent();
         App.mainpage = this;
         vm = new MainPageViewModel();
@@ -31,7 +32,8 @@ public partial class MainPage : ContentPage {
         string token = BlazorCallHelper.getAADToken();
         if (token == null) {
             MAUIcontainer.App.Current.ModalPopped += LoadApp;
-            Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin(true));
+            Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(
+                provider.GetService<AADLogin>());
         } else {
             App.IsLogin = true;
             LoadApp(this, null);
@@ -66,7 +68,8 @@ public partial class MainPage : ContentPage {
         } else {
             // Else, let user select which App to launch
             MAUIcontainer.App.Current.ModalPopped += LoadUserApp;
-            await Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new MyApps());
+            await Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(
+                serviceProvider.GetService<MyApps>());
         }
     }
     public void LoadUserApp(object sender, EventArgs e) {

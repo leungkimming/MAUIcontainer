@@ -5,14 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MAUIcontainer"
     Shell.FlyoutBehavior="Flyout">
-    <ShellContent
+    <ShellContent x:Name="ShellBar"
         Title="MAUI Container App"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-    <!--<ShellContent
-        Title="AAD Authentication"
-        ContentTemplate="{DataTemplate local:AADLogin}"
-        Route="AADLoginPage" />-->
     <MenuItem Text="Exit Current App"
           Command="{Binding ExitBlazorCommand}"/>
 </Shell>

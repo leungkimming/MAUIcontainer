@@ -30,10 +30,13 @@ public class MainActivity : MauiAppCompatActivity {
             }
             handler = null;
         }
+        if (NativeMedia.Platform.CheckCanProcessResult(requestCode, resultCode, data))
+            NativeMedia.Platform.OnActivityResult(requestCode, resultCode, data);
         AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
     }
     protected override void OnCreate(Bundle savedInstanceState) {
         base.OnCreate(savedInstanceState);
+        NativeMedia.Platform.Init(this, savedInstanceState);
         CrossFingerprint.SetCurrentActivityResolver(() => this);
         HandleIntent(Intent);
         CreateNotificationChannelIfNeeded();

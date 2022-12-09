@@ -12,14 +12,16 @@ public partial class App : Application {
     public static MyApp currentApp { get; set; }
     public static MainPage mainpage { get; set; }
     public static bool IsLogin { get; set; }
-    public App() {
+    public IAPIService _APIService { get; set; }
+    public App( IAPIService service) {
         InitializeComponent();
+        _APIService = service;
         currentApp = null;
         mainpage = null;
         IsLogin= false;
         MessageQueue = new Dictionary<int, FCMNotification>();
         MyAppsArray = new List<MyApp>();
-        MyAppsResponse myapps = APIService.GetMyApps();
+        MyAppsResponse myapps = service.GetMyApps();
         foreach (MyAppDto app in myapps.MyAppsDto) {
             MyAppsArray.Add(app.toMyApp);
         }

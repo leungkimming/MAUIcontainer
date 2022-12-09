@@ -5,18 +5,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:MAUIcontainer.Controls"
     >
-
-    <Grid>
-        <ScrollView x:Name="scrollView"
+    <ScrollView x:Name="scrollView"
                 VerticalOptions="FillAndExpand" 
                 VerticalScrollBarVisibility="Always"
                 HorizontalScrollBarVisibility="Always">
-            <controls:HybridWebView
-                x:Name="MyWebView"
-                HorizontalOptions="FillAndExpand" 
-                VerticalOptions="FillAndExpand"
-                Source="{Binding Source}" />
-        </ScrollView>
-    </Grid>
-
+        <StackLayout BackgroundColor="{StaticResource Black}">
+            <controls:HybridWebView Margin="8,0,0,0"
+                    x:Name="MyWebView"
+                    HorizontalOptions="FillAndExpand" 
+                    VerticalOptions="FillAndExpand"
+                    Source="{Binding Source}" />
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

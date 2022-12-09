@@ -11,10 +11,12 @@ public partial class MyApps : ContentPage {
             return App.MyAppsArray;
         }
     }
+    public IServiceProvider serviceProvider { get; set; }
 
-    public MyApps() {
+    public MyApps(IServiceProvider provider) {
 		InitializeComponent();
         BindingContext = this;
+        serviceProvider = provider;
     }
     public async void OnItemSelected(object sender, SelectedItemChangedEventArgs args) {
         App.currentApp = args.SelectedItem as MyApp;
@@ -22,7 +24,8 @@ public partial class MyApps : ContentPage {
     }
     public void onLoginButton(object sender, EventArgs e) {
         MAUIcontainer.App.Current.ModalPopping += RefreshApps;
-        Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(new AADLogin(true));
+        Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(
+            serviceProvider.GetService<AADLogin>().setIsPush());
     }
     public void RefreshApps(object sender, EventArgs e) {
         if (e != null && (e as ModalPoppingEventArgs).Modal.ToString() == "MAUIcontainer.AADLogin") {
