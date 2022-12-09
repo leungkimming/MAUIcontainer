@@ -9,8 +9,8 @@
                 VerticalOptions="FillAndExpand" 
                 VerticalScrollBarVisibility="Always"
                 HorizontalScrollBarVisibility="Always">
-        <StackLayout>
-            <controls:HybridWebView Margin="10,10,10,10"
+        <StackLayout BackgroundColor="{StaticResource Black}">
+            <controls:HybridWebView Margin="8,0,0,0"
                     x:Name="MyWebView"
                     HorizontalOptions="FillAndExpand" 
                     VerticalOptions="FillAndExpand"
