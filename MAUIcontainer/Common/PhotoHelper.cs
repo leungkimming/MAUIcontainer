@@ -35,16 +35,24 @@ namespace MAUIcontainer {
                 if (!MediaGallery.CheckCapturePhotoSupport()) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                     response.Message = "No Camera feature!";
+                    return response;
                 }
                 if (await Permissions.RequestAsync<Permissions.Camera>() != PermissionStatus.Granted) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                     response.Message = "Camera access denied!";
+                    return response;
                 }
                 if (await Permissions.RequestAsync<SaveMediaPermission>() != PermissionStatus.Granted) {
                     response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                     response.Message = "Media write access denied!";
+                    return response;
                 }
                 file = await MediaGallery.CapturePhotoAsync(cts.Token);
+                if (file == null) {
+                    response.StatusCode = System.Net.HttpStatusCode.NoContent;
+                    response.Message = "Cancelled by user";
+                    return response;
+                }
                 await Task.Delay(200);
                 FileDto fileDto = new FileDto();
                 fileDto.ContentType = file.ContentType;
@@ -57,7 +65,6 @@ namespace MAUIcontainer {
                 using FileStream localFileStream = File.OpenWrite(localFilePath);
                 await Task.Delay(200);
                 await stream.CopyToAsync(localFileStream);
-//                await MediaGallery.SaveAsync(MediaFileType.Image, stream, App.currentApp.Name);
                 stream.Position = 0;
                 string thumbnailImageLocalFilePath = Path.Combine(FileSystem.CacheDirectory, $"thumbnail{fileDto.Name}");
                 using FileStream thumbnailImagelocalFileStream = File.OpenWrite(thumbnailImageLocalFilePath);
