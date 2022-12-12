@@ -6,6 +6,8 @@ using Plugin.Firebase.Shared;
 using Plugin.Firebase.CloudMessaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ZXing.Net.Maui;
+using ZXing.Net.Maui.Controls;
 
 #if ANDROID
 using MAUIcontainer.Platforms.Droid.Renderers;
@@ -26,6 +28,7 @@ public static class MauiProgram {
 
         builder
             .UseMauiApp<App>()
+            .UseBarcodeReader()
             .RegisterFirebaseServices()
             .RegisterServices()
             .ConfigureFonts(fonts => {
