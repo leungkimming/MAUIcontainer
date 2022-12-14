@@ -19,6 +19,10 @@ using MAUIcontainer.Platforms.iOS.Renderers;
 using Plugin.Firebase.iOS;
 #endif
 
+#if ANDROID
+[assembly: Android.App.UsesPermission(Android.Manifest.Permission.Camera)]
+#endif
+
 namespace MAUIcontainer;
 
 public static class MauiProgram {
@@ -28,7 +32,6 @@ public static class MauiProgram {
 
         builder
             .UseMauiApp<App>()
-            .UseBarcodeReader()
             .RegisterFirebaseServices()
             .RegisterServices()
             .ConfigureFonts(fonts => {
@@ -38,6 +41,7 @@ public static class MauiProgram {
             .ConfigureMauiHandlers(handlers => {
                 handlers.AddHandler(typeof(HybridWebView), typeof(HybridWebViewHandler));
             })
+            .UseBarcodeReader()
             .Configuration.AddJsonStream(stream);
 
         var app = builder.Build();

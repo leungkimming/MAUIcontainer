@@ -7,8 +7,8 @@
     Shell.FlyoutBehavior="Flyout">
     <ShellContent x:Name="ShellBar"
         Title="MAUI Container App"
-        ContentTemplate="{DataTemplate local:QRcode}"
-        Route="QRcode" />
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
     <MenuItem Text="Exit Current App"
           Command="{Binding ExitBlazorCommand}"/>
 </Shell>

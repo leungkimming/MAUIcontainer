@@ -9,6 +9,7 @@ using Plugin.Fingerprint.Abstractions;
 using MAUIcontainer;
 using MAUIcontainer.Controls;
 using Plugin.Firebase.CloudMessaging;
+using System.Collections.ObjectModel;
 
 namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
@@ -81,6 +82,16 @@ namespace MAUIcontainer {
         public static async void photograph(string args) {
             ResponseDto response = await _fileHelper.CapturePhoto(args);
             callback(promiseId, JsonSerializer.Serialize(response));
+        }
+
+        public static async void getScanResult(string reason) {
+            MessagingCenter.Subscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode", (sender, arg) => {
+                MessagingCenter.Unsubscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode");
+                ObservableCollection<ScannedCode> result  = arg;
+                string message = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(result)));
+                callback(promiseId, message);
+            });
+            await Application.Current.MainPage.Navigation.PushModalAsync(new QRcode());
         }
     }
 }

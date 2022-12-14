@@ -72,7 +72,8 @@ namespace MAUIcontainer {
         public MyAppsResponse GetMyApps() {
             //Should call a Apps Management API to retrieve based on authentication token.
             DevHttpsConnectionHelper devHttpsConnectionHelper = new DevHttpsConnectionHelper();
-            var response = devHttpsConnectionHelper.HttpClient.GetAsync($"https://mauiclient.z23.web.core.windows.net/myapps.json?dt={DateTime.Now.ToLongTimeString()}").Result;
+            //var response = devHttpsConnectionHelper.HttpClient.GetAsync($"https://mauiclient.z23.web.core.windows.net/myapps.json?dt={DateTime.Now.ToLongTimeString()}").Result;
+            var response = devHttpsConnectionHelper.HttpClient.GetAsync($"https://192.168.0.30:7196/myapps.json?dt={DateTime.Now.ToLongTimeString()}").Result;
             return response.Content.ReadFromJsonAsync<MyAppsResponse>().Result;
         }
     }

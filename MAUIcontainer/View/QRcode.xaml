@@ -3,29 +3,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
              x:Class="MAUIcontainer.QRcode"
-             Title="QRcode">
-    <Grid RowDefinitions="1*,3*,1*">
+             Title="QRcode" BackgroundColor="#000000">
+    <Grid RowDefinitions="2*,3*,2*">
 
         <zxing:CameraBarcodeReaderView
-			Grid.Row="0" Grid.RowSpan="3"
+			Grid.RowSpan="3"
 			x:Name="barcodeView"
 			BarcodesDetected="BarcodesDetected"
 			 />
-
+        <!--<Label
+			Grid.RowSpan="3" BackgroundColor="#aa000000"
+			 />-->
         <Grid
 			Grid.Row="0"
 			BackgroundColor="#aa000000">
-            <Label Grid.Row="2" x:Name="barcodeData" HorizontalOptions="Center" VerticalOptions="Center" TextColor="White" />
+            <Grid RowDefinitions="25,20,*">
+                <Label Grid.Row="0"  Padding="1" VerticalTextAlignment="Center"
+                       HorizontalOptions="Center" Text ="Bar/QR code Scanning" TextColor="White" 
+                       FontSize="16" FontAttributes="Bold"/>
+                <StackLayout Grid.Row="1">
+                    <Grid ColumnDefinitions="50,10,Auto">
+                        <Label Grid.Column="0" Text="Type" FontSize="13" TextColor="White" TextDecorations="Underline" />
+                        <Label Grid.Column="2" Text="Value" FontSize="13" TextColor="White" TextDecorations="Underline" />
+                    </Grid>
+                </StackLayout>
+                <StackLayout Grid.Row="3" BindableLayout.ItemsSource="{Binding ScannedList}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout>
+                                <Grid ColumnDefinitions="50,10,Auto">
+                                    <Label Grid.Column="0" FontSize="12" Text="{Binding Type}" TextColor="White" />
+                                    <Label Grid.Column="2" FontSize="12" Text="{Binding Value}" TextColor="White" />                                </Grid>
+                            </StackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+            </Grid>
         </Grid>
 
         <Grid
-			Grid.Row="3"
+			Grid.Row="2"
 			BackgroundColor="#aa000000"
-			Padding="20"
-			ColumnDefinitions="Auto,*,Auto">
-
-            <Button Text="💡" Grid.Column="2" BackgroundColor="#aa000000" CornerRadius="8" BorderColor="Black" Clicked="TorchButton_Clicked" />
+			Padding="10"
+			ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+            <Button VerticalOptions="End" HeightRequest="50" Margin="0,10,10,0" 
+                    Text="Cancel" Grid.Column="0" BackgroundColor="#aa000000" 
+                    CornerRadius="8" TextColor="White" Clicked="Cancel_Clicked" />
+            <Button VerticalOptions="End" HeightRequest="50" Margin="0,10,10,0" 
+                    Text="Clear" Grid.Column="1" BackgroundColor="#aa000000" 
+                    CornerRadius="8" TextColor="White"  Clicked="Clear_Clicked" />
+            <Button VerticalOptions="End" HeightRequest="50" Margin="0,10,10,0" 
+                    Text="Save" Grid.Column="2" BackgroundColor="#aa000000" 
+                    CornerRadius="8" TextColor="White"  Clicked="Save_Clicked"/>
+            <Button VerticalOptions="End" HeightRequest="50" Margin="0,10,10,0" 
+                    Text="💡" Grid.Column="4" BackgroundColor="#aa000000" 
+                    CornerRadius="8" TextColor="White" Clicked="TorchButton_Clicked" />
         </Grid>
-
     </Grid>
 </ContentPage>
