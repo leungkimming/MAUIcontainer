@@ -88,7 +88,8 @@ namespace MAUIcontainer {
             MessagingCenter.Subscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode", (sender, arg) => {
                 MessagingCenter.Unsubscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode");
                 ObservableCollection<ScannedCode> result  = arg;
-                string message = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(result)));
+                List<ScannedCode> resultList = new List<ScannedCode>(result);
+                string message = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(resultList)));
                 callback(promiseId, message);
             });
             await Application.Current.MainPage.Navigation.PushModalAsync(new QRcode());
