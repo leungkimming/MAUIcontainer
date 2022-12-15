@@ -5,7 +5,7 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<!--<string>$(AppIdentifierPrefix).microsoft.adalcache</string>-->
-		<string>Q33DSJDE4V.com.microsoft.adalcache</string>
+    <string>T6255X7EN5.com.microsoft.adalcache</string>
 	</array>
 	<key>aps-environment</key>
 	<string>development</string>

@@ -154,7 +154,7 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
                 }
             } else
                 decisionHandler(WKNavigationActionPolicy.Allow);
-        }
+        }       
     }
     public class JSBridge : NSObject, IWKScriptMessageHandler {
         readonly WeakReference<HybridWebViewHandler> hybridWebViewRenderer;
