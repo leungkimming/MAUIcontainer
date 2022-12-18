@@ -1,1 +1,1 @@
-dotnet publish -f:net6.0-ios -c:Release /p:ServerAddress=macbookair /p:ServerUser=kimmingleung /p:ServerPassword=4585 /p:TcpPort=58181 /p:ArchiveOnBuild=true /p:RuntimeIdentifier=ios-arm64  /p:_DotNetRootRemoteDirectory=/Users/kimmingleung/Library/Caches/Xamarin/XMA/SDKs/dotnet/
+dotnet publish -f:net7.0-ios -c:Release /p:ServerAddress=macbookair /p:ServerUser=kimmingleung /p:ServerPassword=4585 /p:TcpPort=58181 /p:ArchiveOnBuild=true /p:RuntimeIdentifier=ios-arm64  /p:_DotNetRootRemoteDirectory=/Users/kimmingleung/Library/Caches/Xamarin/XMA/SDKs/dotnet/

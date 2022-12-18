@@ -9,11 +9,7 @@
         <zxing:CameraBarcodeReaderView
 			Grid.RowSpan="3"
 			x:Name="barcodeView"
-			BarcodesDetected="BarcodesDetected"
-			 />
-        <!--<Label
-			Grid.RowSpan="3" BackgroundColor="#aa000000"
-			 />-->
+			BarcodesDetected="BarcodesDetected" />
         <Grid
 			Grid.Row="0"
 			BackgroundColor="#aa000000">

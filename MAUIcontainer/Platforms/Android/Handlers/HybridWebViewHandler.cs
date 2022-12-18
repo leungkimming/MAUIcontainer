@@ -24,7 +24,9 @@ using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer.Platforms.Droid.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, AndroidWeb.WebView> {
-        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
+        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper) {
+            [nameof(IHybridWebView.Source)] = MapSource
+        };
 
         const string JavascriptFunction = "function invokeMAUIAction(data){jsBridge.invokeAction(data);}";
 
@@ -32,8 +34,8 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
         public HybridWebViewHandler() : base(HybridWebViewMapper) {            
         }
 
-        private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
-            LoadSource(e.Source, PlatformView);
+        static void MapSource(HybridWebViewHandler handler, IHybridWebView entry) {
+            LoadSource(entry.Source, handler.PlatformView);
         }
 
         protected override AndroidWeb.WebView CreatePlatformView() {
@@ -64,14 +66,11 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
             if (VirtualView.Source != null) {
                 LoadSource(VirtualView.Source, PlatformView);
             }
-
-            VirtualView.SourceChanged += VirtualView_SourceChanged;
         }
 
         protected override void DisconnectHandler(AndroidWeb.WebView platformView) {
             base.DisconnectHandler(platformView);
 
-            VirtualView.SourceChanged -= VirtualView_SourceChanged;
             VirtualView.Cleanup();
 
             jsBridgeHandler?.Dispose();

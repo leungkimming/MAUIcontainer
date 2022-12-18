@@ -35,6 +35,26 @@
 		<UseInterpreter>true</UseInterpreter>
 	</PropertyGroup>
 	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+	  <BuildIpa>True</BuildIpa>
+	  <IpaPackageName>MAUIcontaier</IpaPackageName>
+	  <IpaIncludeArtwork>True</IpaIncludeArtwork>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+	  <BuildIpa>True</BuildIpa>
+	  <IpaPackageName>MAUIcontaier</IpaPackageName>
+	  <IpaIncludeArtwork>True</IpaIncludeArtwork>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+	  <IpaPackageName>MAUIcontaier</IpaPackageName>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
+	  <IpaPackageName>MAUIcontaier</IpaPackageName>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
