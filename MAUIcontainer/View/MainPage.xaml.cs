@@ -10,7 +10,6 @@ using System.Text.Json;
 
 namespace MAUIcontainer;
 public partial class MainPage : ContentPage {
-    public IPublicClientApplication IdentityClient { get; set; }
     MainPageViewModel vm;
     public JavaScriptActionHandler jsActionHandler { get; set; }
     public IServiceProvider serviceProvider { get; set; }
@@ -33,7 +32,7 @@ public partial class MainPage : ContentPage {
         if (token == null) {
             MAUIcontainer.App.Current.ModalPopped += LoadApp;
             Microsoft.Maui.Controls.Application.Current.MainPage.Navigation.PushModalAsync(
-                provider.GetService<AADLogin>());
+                provider.GetService<AADLogin>().setIsPush());
         } else {
             App.IsLogin = true;
             LoadApp(this, null);

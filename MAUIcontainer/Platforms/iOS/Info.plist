@@ -59,9 +59,6 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>msal48ce7928-5eea-415c-a209-35e39bef6b2e</string>
-			</array>
-			<key>CFBundleURLSchemes_hke</key>
-			<array>
 				<string>msalfadc4ccc-c090-4bab-9e8e-eb00f5f6a3a4</string>
 			</array>
 		</dict>
