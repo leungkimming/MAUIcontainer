@@ -35,7 +35,9 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
         }
 
         static void MapSource(HybridWebViewHandler handler, IHybridWebView entry) {
-            LoadSource(entry.Source, handler.PlatformView);
+            if (entry.Source != null) {
+                LoadSource(entry.Source, handler.PlatformView);
+            }
         }
 
         protected override AndroidWeb.WebView CreatePlatformView() {
@@ -78,13 +80,13 @@ namespace MAUIcontainer.Platforms.Droid.Renderers {
         }
 
         private static void LoadSource(WebViewSource source, AndroidWeb.WebView control) {
-            try {
+//            try {
                 if (source is HtmlWebViewSource html) {
                     control.LoadDataWithBaseURL(html.BaseUrl, html.Html, null, "charset=UTF-8", null);
                 } else if (source is UrlWebViewSource url) {
                     control.LoadUrl(url.Url);
                 }
-            } catch { }
+//            } catch { }
         }
     }
     public class CustomWebChromeClient : AndroidWeb.WebChromeClient {
