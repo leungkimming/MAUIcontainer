@@ -42,6 +42,22 @@ namespace MAUIcontainer {
             string accessToken = getAADToken();
             callback(promiseId, accessToken);
         }
+        public static async void GetCFMToken(string args) {
+            int count = 0;
+            string token = "";
+            while (count < 2) {
+                try {
+                    await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+                    token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+                    break;
+                } catch (Exception e) {
+                    token = $"Error:{e.Message}";
+                }
+                count++;
+            }
+            System.Diagnostics.Debug.WriteLine(token);
+            callback(promiseId, token);
+        }
         public static void getPMessage(string AppId) {
             string pMessage = "";
             int key = App.MessageQueue.Where(x => (x.Value != null) && (x.Value.Data["App"] == AppId))
