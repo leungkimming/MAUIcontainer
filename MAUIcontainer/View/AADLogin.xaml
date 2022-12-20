@@ -27,6 +27,10 @@
             <StackLayout>
                 <Label FontSize="32" Text="Azure AD Authentication"/>
             </StackLayout>
+            <Grid ColumnDefinitions="50,*">
+                <Label Margin="0,10" Grid.Column="0">Tenant:</Label>
+                <Picker Grid.Column="1" x:Name="Tenant" Title="Select a Login Tenant" SelectedIndexChanged="onTenantChanged" />
+            </Grid>
             <StackLayout>
                 <Label FontSize="16" x:Name="Status"/>
             </StackLayout>

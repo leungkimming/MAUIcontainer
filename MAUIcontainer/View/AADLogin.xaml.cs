@@ -13,7 +13,17 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         InitializeComponent();
         useNTLMButton.IsVisible = true;
         isPush = false;
-        getStatus();
+        Tenant.ItemsSource = authService.GetTenants();
+        if (Tenant.ItemsSource.Count == 1) {
+            authService.SetTenant(Tenant.ItemsSource[0].ToString());
+        } else {
+            string lastTenant = Preferences.Default.Get<string>("Tenant", "");
+            if (lastTenant != "") {
+                Tenant.SelectedItem = lastTenant;
+                authService.SetTenant(lastTenant);
+                getStatus();
+            }
+        }
     }
     public AADLogin setIsPush() {
         this.isPush = true;
@@ -29,9 +39,11 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
             Login.IsEnabled = false;
+            Tenant.IsEnabled = false;
         } else {
             Status.Text = "Status: Logout";
             Login.IsEnabled = true;
+            Tenant.IsEnabled = true;
         }
     }
     async Task<string> GetCFMToken() {
@@ -49,6 +61,12 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
         }
         System.Diagnostics.Debug.WriteLine(token);
         return token;
+    }
+    void onTenantChanged(object sender, EventArgs e) {
+        var picker = (Picker)sender;
+        var value = picker.SelectedItem as string;
+        authService.SetTenant(value);
+        Login.IsEnabled = true;
     }
     async void onDebug(object sender, EventArgs e) {
         App.errmessage += "FCM Token:" + await GetCFMToken();
@@ -71,6 +89,8 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
                 "\nScope: " + result.Scopes.FirstOrDefault() +
                 "\nToken Expiry: " + result.ExtendedExpiresOn.LocalDateTime.ToString("dd/MM/yyyy HH:MM:ss");
             Login.IsEnabled = false;
+            Tenant.IsEnabled = false;
+            Preferences.Default.Set("Tenant", Tenant.SelectedItem.ToString());
             App.IsLogin = true;
             if (isPush) {
                 await Navigation.PopModalAsync();
@@ -80,7 +100,10 @@ public partial class AADLogin : ContentPage, INotifyPropertyChanged {
     async void onLogout(object sender, EventArgs e) {
         authService.LogoutAsync();
         Status.Text = "Status: Logout";
-        Login.IsEnabled = true;
+        if (Tenant.SelectedItem as string != "") {
+            Login.IsEnabled = true;
+        }
+        Tenant.IsEnabled = true;
         App.IsLogin = false;
 #if ANDROID
         bool action  = await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Confirmation", "Exit the Application?", "Confirm", "Cancel");
