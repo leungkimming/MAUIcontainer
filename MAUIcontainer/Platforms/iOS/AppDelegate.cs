@@ -1,6 +1,7 @@
 ﻿using Foundation;
 using Microsoft.Identity.Client;
 using UIKit;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer
 {
@@ -20,8 +21,26 @@ namespace MAUIcontainer
             return base.FinishedLaunching(application, launchOptions);
         }
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
-            AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
-            return base.OpenUrl(app, url, options);
+            if (url.AbsoluteString.StartsWith("heart://")) {
+                return OpenDeepLink(url.AbsoluteString);
+            } else {
+                AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
+                return base.OpenUrl(app, url, options);
+            }
+        }
+        private bool OpenDeepLink(string url) {
+            App.errmessage += url;
+            var x = url.IndexOf('/', 8);
+            if (x > 0) {
+                var dlinkdata = new Dictionary<string, string> {
+                    { "App", url.Substring(8, x - 8) },
+                    { "Message", url }
+                };
+                FCMNotification dlinkFCM = new FCMNotification(null, "DeepLink", null, dlinkdata);
+                //var dlinkarg = new Plugin.Firebase.CloudMessaging.EventArgs.FCMNotificationTappedEventArgs(dlinkMess);
+                CrossFirebaseCloudMessaging.Current.OnNotificationReceived(dlinkFCM);
+            }
+            return true;
         }
 
     }
