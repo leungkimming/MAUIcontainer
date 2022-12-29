@@ -12,10 +12,15 @@ using Plugin.Fingerprint;
 using Android.Views;
 using Plugin.Fingerprint.Abstractions;
 using Plugin.Firebase.CloudMessaging;
+using Java.Net;
 
 namespace MAUIcontainer;
 
-[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, Exported = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+[IntentFilter(new[] { Intent.ActionView }, Categories = new[] {
+    Intent.CategoryDefault,
+    Intent.CategoryBrowsable
+}, DataScheme="heart")]
 public class MainActivity : MauiAppCompatActivity {
     public delegate void uploadFile(Android.Net.Uri uri);
     public static uploadFile handler = null;
@@ -40,10 +45,16 @@ public class MainActivity : MauiAppCompatActivity {
         CrossFingerprint.SetCurrentActivityResolver(() => this);
         HandleIntent(Intent);
         CreateNotificationChannelIfNeeded();
+        var data = Intent?.Data?.EncodedAuthority;
     }
     protected override void OnNewIntent(Intent intent) {
-        base.OnNewIntent(intent);
-        HandleIntent(intent);
+        if (intent.DataString != null && intent.DataString.StartsWith("heart://")) {
+            App.errmessage += intent.DataString;
+            App.OpenDeepLink(intent.DataString);
+        } else {
+            base.OnNewIntent(intent);
+            HandleIntent(intent);
+        }
     }
 
     private static void HandleIntent(Intent intent) {
