@@ -13,6 +13,7 @@ using Android.Views;
 using Plugin.Fingerprint.Abstractions;
 using Plugin.Firebase.CloudMessaging;
 using Java.Net;
+using Plugin.NFC;
 
 namespace MAUIcontainer;
 
@@ -40,12 +41,12 @@ public class MainActivity : MauiAppCompatActivity {
         AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
     }
     protected override void OnCreate(Bundle savedInstanceState) {
+        CrossNFC.Init(this);
         base.OnCreate(savedInstanceState);
         NativeMedia.Platform.Init(this, savedInstanceState);
         CrossFingerprint.SetCurrentActivityResolver(() => this);
         HandleIntent(Intent);
         CreateNotificationChannelIfNeeded();
-        var data = Intent?.Data?.EncodedAuthority;
     }
     protected override void OnNewIntent(Intent intent) {
         if (intent.DataString != null && intent.DataString.StartsWith("heart://")) {
@@ -53,8 +54,13 @@ public class MainActivity : MauiAppCompatActivity {
             App.OpenDeepLink(intent.DataString);
         } else {
             base.OnNewIntent(intent);
+            CrossNFC.OnNewIntent(intent);
             HandleIntent(intent);
         }
+    }
+    protected override void OnResume() {
+        base.OnResume();
+        CrossNFC.OnResume();
     }
 
     private static void HandleIntent(Intent intent) {

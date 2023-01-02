@@ -15,9 +15,11 @@ namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
         private static IPhotoHelper _fileHelper;
         private static IAuthService _authService;
-        public static void Configure(IPhotoHelper fileHelper, IAuthService authService) {
+        private static INFCHelper _nfcHelper;
+        public static void Configure(IPhotoHelper fileHelper, IAuthService authService, INFCHelper nfcHelper) {
             _fileHelper = fileHelper;
             _authService = authService;
+            _nfcHelper = nfcHelper;
         }
 
         public delegate void Callback(string promiseId, string result);
@@ -109,6 +111,17 @@ namespace MAUIcontainer {
                 callback(promiseId, message);
             });
             await Application.Current.MainPage.Navigation.PushModalAsync(new QRcode());
+        }
+        public static async void getNFCStatus(string args) {
+            callback(promiseId, _nfcHelper.getStatus().ToString());
+        }
+        public static async void readNFC(string args) {
+            _nfcHelper.readNFC(callback, promiseId);
+        }
+        public static async void writeNFC(string args) {
+            string sParam = Encoding.Default.GetString(Convert.FromBase64String(args));
+            NFCWriteData nfcData = JsonSerializer.Deserialize<NFCWriteData>(sParam);
+            _nfcHelper.writeNFC(callback, promiseId, nfcData.mode, nfcData.writeTagInfo);
         }
     }
 }

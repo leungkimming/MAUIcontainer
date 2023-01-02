@@ -48,7 +48,8 @@ public static class MauiProgram {
         using (var scope = app.Services.CreateScope()) {
             BlazorCallHelper.Configure(
                 scope.ServiceProvider.GetRequiredService<IPhotoHelper>(),
-                scope.ServiceProvider.GetRequiredService<IAuthService>()
+                scope.ServiceProvider.GetRequiredService<IAuthService>(),
+                scope.ServiceProvider.GetRequiredService<INFCHelper>()
             );
         }
         return app;
@@ -56,6 +57,7 @@ public static class MauiProgram {
     private static MauiAppBuilder RegisterServices(this MauiAppBuilder builder) {
         builder.Services
                 .AddSingleton<IPhotoHelper, PhotoHelper>()
+                .AddSingleton<INFCHelper, NFCHelper>()
                 .AddSingleton<IAuthService, AuthService>()
                 .AddSingleton<IAPIService, APIService>()
                 .AddTransient<AADLogin>()

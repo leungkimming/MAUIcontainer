@@ -28,6 +28,8 @@
 	<uses-feature android:name="android.hardware.camera" android:required="true" />
 	<uses-permission android:name="android.permission.REORDER_TASKS" />
 	<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+	<uses-permission android:name="android.permission.NFC" />
+	<uses-feature android:name="android.hardware.nfc" android:required="false" />
 	<queries>
 		<intent>
 			<action android:name="android.media.action.IMAGE_CAPTURE" />
