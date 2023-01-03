@@ -9,14 +9,17 @@ using Plugin.Fingerprint.Abstractions;
 using MAUIcontainer;
 using MAUIcontainer.Controls;
 using Plugin.Firebase.CloudMessaging;
+using System.Collections.ObjectModel;
 
 namespace MAUIcontainer {
     public static partial class BlazorCallHelper {
         private static IPhotoHelper _fileHelper;
         private static IAuthService _authService;
-        public static void Configure(IPhotoHelper fileHelper, IAuthService authService) {
+        private static INFCHelper _nfcHelper;
+        public static void Configure(IPhotoHelper fileHelper, IAuthService authService, INFCHelper nfcHelper) {
             _fileHelper = fileHelper;
             _authService = authService;
+            _nfcHelper = nfcHelper;
         }
 
         public delegate void Callback(string promiseId, string result);
@@ -40,6 +43,22 @@ namespace MAUIcontainer {
         public static void getToken(string args) {
             string accessToken = getAADToken();
             callback(promiseId, accessToken);
+        }
+        public static async void GetCFMToken(string args) {
+            int count = 0;
+            string token = "";
+            while (count < 2) {
+                try {
+                    await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+                    token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+                    break;
+                } catch (Exception e) {
+                    token = $"Error:{e.Message}";
+                }
+                count++;
+            }
+            System.Diagnostics.Debug.WriteLine(token);
+            callback(promiseId, token);
         }
         public static void getPMessage(string AppId) {
             string pMessage = "";
@@ -81,6 +100,31 @@ namespace MAUIcontainer {
         public static async void photograph(string args) {
             ResponseDto response = await _fileHelper.CapturePhoto(args);
             callback(promiseId, JsonSerializer.Serialize(response));
+        }
+
+        public static async void getScanResult(string reason) {
+            MessagingCenter.Subscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode", (sender, arg) => {
+                MessagingCenter.Unsubscribe<QRcode, ObservableCollection<ScannedCode>>(Application.Current, "ScanCode");
+                ObservableCollection<ScannedCode> result  = arg;
+                List<ScannedCode> resultList = new List<ScannedCode>(result);
+                string message = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(resultList)));
+                callback(promiseId, message);
+            });
+            await Application.Current.MainPage.Navigation.PushModalAsync(new QRcode());
+        }
+        public static async void getNFCStatus(string args) {
+            callback(promiseId, _nfcHelper.getStatus().ToString());
+        }
+        public static async void readNFC(string args) {
+            _nfcHelper.readNFC(callback, promiseId);
+        }
+        public static async void writeNFC(string args) {
+            string sParam = Encoding.Default.GetString(Convert.FromBase64String(args));
+            NFCWriteData nfcData = JsonSerializer.Deserialize<NFCWriteData>(sParam);
+            _nfcHelper.writeNFC(callback, promiseId, nfcData.mode, nfcData.writeTagInfo);
+        }
+        public static async void cancelNFCScan() {
+            await _nfcHelper.StopListening();
         }
     }
 }

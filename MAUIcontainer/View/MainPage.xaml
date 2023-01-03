@@ -5,16 +5,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:MAUIcontainer.Controls"
     >
-    <ScrollView x:Name="scrollView"
+    <Grid RowDefinitions="1*,2*,3*">
+        <ScrollView x:Name="scrollView" Grid.RowSpan="3"
                 VerticalOptions="FillAndExpand" 
                 VerticalScrollBarVisibility="Always"
                 HorizontalScrollBarVisibility="Always">
-        <StackLayout BackgroundColor="{StaticResource Black}">
-            <controls:HybridWebView Margin="8,0,0,0"
-                    x:Name="MyWebView"
-                    HorizontalOptions="FillAndExpand" 
-                    VerticalOptions="FillAndExpand"
-                    Source="{Binding Source}" />
-        </StackLayout>
-    </ScrollView>
+            <StackLayout BackgroundColor="{StaticResource Black}">
+                <controls:HybridWebView Margin="8,0,0,0"
+                        x:Name="MyWebView"
+                        HorizontalOptions="FillAndExpand" 
+                        VerticalOptions="FillAndExpand"
+                        Source="{Binding Source}" />
+            </StackLayout>
+        </ScrollView>
+        <Grid IsVisible="{Binding isNFCScanning}" Grid.Row="1" RowDefinitions="*,45">
+            <Image Grid.Row="0" Source="nfcscan.png"></Image>
+            <Button WidthRequest="100" Margin="0,4" BackgroundColor="Gray" Grid.Row="1" Text="Cancel" FontFamily="OpenSansBold" Clicked="onCancelNFC"  />
+        </Grid>
+    </Grid>
 </ContentPage>

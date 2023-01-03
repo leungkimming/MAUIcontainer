@@ -10,17 +10,32 @@ using Microsoft.Extensions.Configuration;
 
 namespace MAUIcontainer {
     public class AuthService : IAuthService {
-        private readonly IPublicClientApplication authenticationClient;
+        private IPublicClientApplication authenticationClient;
+        private IConfiguration configuration;
         private string ApplicationId;
         private string[] Scopes;
         public AuthService(IConfiguration config) {
-            Scopes = config.GetSection("Scopes").Get<string[]>();
-            ApplicationId = config.GetSection("ApplicationId").Value;
+            this.configuration = config;
+            if (GetTenants().Count() == 1) {
+                SetTenant(GetTenants()[0]);
+            } else {
+                string tenant = Preferences.Default.Get<string>("Tenant", "");
+                if (tenant != "") {
+                    SetTenant(tenant);
+                }
+            }
+        }
+        public string[] GetTenants() {
+            return configuration.GetSection("AzureAd").GetChildren().Select(x => x.Key).ToArray();
+        }
+        public void SetTenant(string tenantId) {
+            Scopes = configuration.GetSection($"AzureAd:{tenantId}:Scopes").Get<string[]>();
+            ApplicationId = configuration.GetSection($"AzureAd:{tenantId}:ApplicationId").Value;
 
             authenticationClient = PublicClientApplicationBuilder.Create(ApplicationId)
                 //.WithB2CAuthority(Constants.AuthoritySignIn) // uncomment to support B2C
 #if WINDOWS
-            .WithRedirectUri("http://localhost");
+                .WithRedirectUri("http://localhost");
 #else
                 .WithRedirectUri($"msal{ApplicationId}://auth")
 #endif

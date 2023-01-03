@@ -6,6 +6,8 @@ using Plugin.Firebase.Shared;
 using Plugin.Firebase.CloudMessaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ZXing.Net.Maui;
+using ZXing.Net.Maui.Controls;
 
 #if ANDROID
 using MAUIcontainer.Platforms.Droid.Renderers;
@@ -15,6 +17,10 @@ using Plugin.Firebase.Android;
 #if IOS
 using MAUIcontainer.Platforms.iOS.Renderers;
 using Plugin.Firebase.iOS;
+#endif
+
+#if ANDROID
+[assembly: Android.App.UsesPermission(Android.Manifest.Permission.Camera)]
 #endif
 
 namespace MAUIcontainer;
@@ -35,13 +41,15 @@ public static class MauiProgram {
             .ConfigureMauiHandlers(handlers => {
                 handlers.AddHandler(typeof(HybridWebView), typeof(HybridWebViewHandler));
             })
+            .UseBarcodeReader()
             .Configuration.AddJsonStream(stream);
 
         var app = builder.Build();
         using (var scope = app.Services.CreateScope()) {
             BlazorCallHelper.Configure(
                 scope.ServiceProvider.GetRequiredService<IPhotoHelper>(),
-                scope.ServiceProvider.GetRequiredService<IAuthService>()
+                scope.ServiceProvider.GetRequiredService<IAuthService>(),
+                scope.ServiceProvider.GetRequiredService<INFCHelper>()
             );
         }
         return app;
@@ -49,6 +57,7 @@ public static class MauiProgram {
     private static MauiAppBuilder RegisterServices(this MauiAppBuilder builder) {
         builder.Services
                 .AddSingleton<IPhotoHelper, PhotoHelper>()
+                .AddSingleton<INFCHelper, NFCHelper>()
                 .AddSingleton<IAuthService, AuthService>()
                 .AddSingleton<IAPIService, APIService>()
                 .AddTransient<AADLogin>()

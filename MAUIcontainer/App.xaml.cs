@@ -2,6 +2,7 @@
 using System;
 using System.Text.Json;
 using System.Text;
+using Plugin.Firebase.CloudMessaging.EventArgs;
 
 namespace MAUIcontainer;
 
@@ -71,5 +72,22 @@ public partial class App : Application {
     private void Current_NotificationReceived(object sender, Plugin.Firebase.CloudMessaging.EventArgs.FCMNotificationReceivedEventArgs e) {
         System.Diagnostics.Debug.WriteLine($"PM Received:{e.Notification.Title}, {e.Notification.Body}");
         errmessage += "PM Received";
+        if (e.Notification.Title == "DeepLink") {
+            Current_NotificationTapped(sender, new Plugin.Firebase.CloudMessaging.EventArgs.FCMNotificationTappedEventArgs(e.Notification));
+        }
+    }
+
+    public static bool OpenDeepLink(string url) {
+        errmessage += url;
+        var x = url.IndexOf('/', 8);
+        if (x > 0) {
+            var dlinkdata = new Dictionary<string, string> {
+                    { "App", url.Substring(8, x - 8) },
+                    { "Message", url }
+                };
+            FCMNotification dlinkFCM = new FCMNotification(null, "DeepLink", null, dlinkdata);
+            CrossFirebaseCloudMessaging.Current.OnNotificationReceived(dlinkFCM);
+        }
+        return true;
     }
 }

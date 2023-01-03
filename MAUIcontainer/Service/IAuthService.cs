@@ -5,6 +5,8 @@ namespace MAUIcontainer {
         public Task<string> GetAccessToken(CancellationToken cancellationToken);
         public Task<AuthenticationResult> LoginAsync(CancellationToken cancellationToken);
         public Task<AuthenticationResult> LoginStatus();
+        public string[] GetTenants();
+        public void SetTenant(string tenantId);
         public void LogoutAsync();
     }
 }

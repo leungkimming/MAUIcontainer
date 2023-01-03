@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace MAUIcontainer.ViewModels
 {
-    internal class MainPageViewModel : INotifyPropertyChanged
+    public class MainPageViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         private WebViewSource source;
         private string _UrlText;
-        
+        private bool _isNFCScanning;
         public string UrlText { 
             get => _UrlText;
             set {
@@ -25,14 +25,22 @@ namespace MAUIcontainer.ViewModels
             }
         }
 
-        public WebViewSource Source
-        {
+        public WebViewSource Source {
             get => source;
             set
             {
                 if (!object.Equals(source, value))
                 {
                     source = value; 
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool isNFCScanning {
+            get => _isNFCScanning;
+            set {
+                if (!object.Equals(source, value)) {
+                    _isNFCScanning = value;
                     OnPropertyChanged();
                 }
             }

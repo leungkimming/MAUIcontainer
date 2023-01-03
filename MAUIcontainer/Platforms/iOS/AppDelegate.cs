@@ -1,6 +1,7 @@
 ﻿using Foundation;
 using Microsoft.Identity.Client;
 using UIKit;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MAUIcontainer
 {
@@ -20,11 +21,13 @@ namespace MAUIcontainer
             return base.FinishedLaunching(application, launchOptions);
         }
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
-            AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
-            return base.OpenUrl(app, url, options);
+            if (url.AbsoluteString.StartsWith("heart://")) {
+                return App.OpenDeepLink(url.AbsoluteString);
+            } else {
+                AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
+                return base.OpenUrl(app, url, options);
+            }
         }
-
     }
-
 }
 

@@ -59,22 +59,43 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>msal48ce7928-5eea-415c-a209-35e39bef6b2e</string>
-			</array>
-			<key>CFBundleURLSchemes_hke</key>
-			<array>
 				<string>msalfadc4ccc-c090-4bab-9e8e-eb00f5f6a3a4</string>
 			</array>
 		</dict>
 	</array>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Need your face to unlock magic things</string>
-  <key>NSCameraUsageDescription</key>
-  <string>This app needs access to the camera to take photos.</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>This app needs access to microphone for taking videos.</string>
-  <key>NSPhotoLibraryAddUsageDescription</key>
-  <string>This app needs access to the photo gallery for picking photos and videos.</string>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>This app needs access to photos gallery for picking photos and videos.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to the camera to take photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone for taking videos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to the photo gallery for picking photos and videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to photos gallery for picking photos and videos.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>HEART</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.hkeenterprise.mauicontainer</string>
+		</dict>
+	</array>
+	<key>NFCReaderUsageDescription</key>
+	<string>NFC tag to read NDEF messages into the application</string>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>com.apple.developer.nfc.readersession.iso7816.select-identifiers</string>
+		<string>D2760000850100</string>
+		<string>D2760000850101</string>
+		<string>A0000002471001</string>
+	</array>
+	<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
+	<array>
+		<string>12FC</string>
+	</array>
 </dict>
 </plist>

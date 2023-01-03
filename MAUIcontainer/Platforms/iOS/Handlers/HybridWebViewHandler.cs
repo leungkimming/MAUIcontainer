@@ -12,20 +12,21 @@ using System.Text;
 
 namespace MAUIcontainer.Platforms.iOS.Renderers {
     public class HybridWebViewHandler : ViewHandler<IHybridWebView, WKWebView> {
-        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper);
+        public static PropertyMapper<IHybridWebView, HybridWebViewHandler> HybridWebViewMapper = new PropertyMapper<IHybridWebView, HybridWebViewHandler>(ViewHandler.ViewMapper) {
+            [nameof(IHybridWebView.Source)] = MapSource
+        };
 
         const string JavaScriptFunction = "function invokeMAUIAction(data){window.webkit.messageHandlers.invokeAction.postMessage(data);}";
 
         private WKUserContentController userController;
         private JSBridge jsBridgeHandler;
-        WKWebViewDelegate _delegate;
+        static WKWebViewDelegate _delegate;
 
         public HybridWebViewHandler() : base(HybridWebViewMapper) {
         }
-
-        private void VirtualView_SourceChanged(object sender, SourceChangedEventArgs e) {
-            LoadSource(e.Source, PlatformView);
-            if (e.Source is UrlWebViewSource url) {
+        static void MapSource(HybridWebViewHandler handler, IHybridWebView entry) {
+            LoadSource(entry.Source, handler.PlatformView);
+            if (entry.Source is UrlWebViewSource url) {
                 _delegate.org_Url = url.Url;
             }
         }
@@ -54,14 +55,10 @@ namespace MAUIcontainer.Platforms.iOS.Renderers {
             if (VirtualView.Source != null) {
                 LoadSource(VirtualView.Source, PlatformView);
             }
-
-            VirtualView.SourceChanged += VirtualView_SourceChanged;
         }
 
         protected override void DisconnectHandler(WKWebView platformView) {
             base.DisconnectHandler(platformView);
-
-            VirtualView.SourceChanged -= VirtualView_SourceChanged;
 
             userController.RemoveAllUserScripts();
             userController.RemoveScriptMessageHandler("invokeAction");
