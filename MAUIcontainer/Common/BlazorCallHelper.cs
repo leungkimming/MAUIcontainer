@@ -123,5 +123,8 @@ namespace MAUIcontainer {
             NFCWriteData nfcData = JsonSerializer.Deserialize<NFCWriteData>(sParam);
             _nfcHelper.writeNFC(callback, promiseId, nfcData.mode, nfcData.writeTagInfo);
         }
+        public static async void cancelNFCScan() {
+            await _nfcHelper.StopListening();
+        }
     }
 }

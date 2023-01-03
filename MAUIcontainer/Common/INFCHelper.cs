@@ -11,5 +11,6 @@ namespace MAUIcontainer {
         public void readNFC(BlazorCallHelper.Callback callback, string promiseId);
         public void writeNFC(BlazorCallHelper.Callback callback, string promiseId,
             writeMode mode, ITagInfo tagInfo);
+        public Task StopListening();
     }
 }

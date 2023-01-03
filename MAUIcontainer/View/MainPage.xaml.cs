@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace MAUIcontainer;
 public partial class MainPage : ContentPage {
-    MainPageViewModel vm;
+    public MainPageViewModel vm;
     public JavaScriptActionHandler jsActionHandler { get; set; }
     public IServiceProvider serviceProvider { get; set; }
     public MainPage(IServiceProvider provider) {
@@ -19,6 +19,7 @@ public partial class MainPage : ContentPage {
         App.mainpage = this;
         vm = new MainPageViewModel();
         BindingContext = vm;
+        vm.isNFCScanning = false;
 
         MyWebView.JavaScriptAction += MyWebView_JavaScriptActionHandler;
         jsActionHandler = new JavaScriptActionHandler();
@@ -93,6 +94,9 @@ public partial class MainPage : ContentPage {
         Dispatcher.Dispatch(() => {
             jsActionHandler.ProcessMessage(e.Payload, ((HybridWebView)sender).Handler);
         });
+    }
+    public async void onCancelNFC(object sender, EventArgs e) {
+        BlazorCallHelper.cancelNFCScan();
     }
 }
 

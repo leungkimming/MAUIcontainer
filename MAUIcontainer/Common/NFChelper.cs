@@ -72,6 +72,9 @@ namespace MAUIcontainer {
             await BeginListening();
         }
         async Task BeginListening() {
+            if (!_isDeviceiOS) {
+                App.mainpage.vm.isNFCScanning = true;
+            }
             try {
                 MainThread.BeginInvokeOnMainThread(() => {
                     SubscribeEvents();
@@ -81,7 +84,8 @@ namespace MAUIcontainer {
                 returnError(ex.Message);
             }
         }
-        async Task StopListening() {
+        public async Task StopListening() {
+            App.mainpage.vm.isNFCScanning = false;
             try {
                 MainThread.BeginInvokeOnMainThread(() => {
                     CrossNFC.Current.StopListening();
@@ -122,7 +126,7 @@ namespace MAUIcontainer {
 
             _eventsAlreadySubscribed = false;
         }
-        async void Current_OnMessageReceived(ITagInfo tagInfo) {
+        void Current_OnMessageReceived(ITagInfo tagInfo) {
             NFCData NFCreturn = new NFCData() {
                 tagInfo = tagInfo as TagInfo,
                 success = false
@@ -141,9 +145,12 @@ namespace MAUIcontainer {
                     NFCreturn.success = true;
                 }
             }
-            await StopListening();
+            Task.Run(() => StopListening());
             string s_NFCreturn = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(NFCreturn)));
             _callback(_promiseId, s_NFCreturn);
+        }
+        async void Current_OniOSReadingSessionCancelled(object sender, EventArgs e) {
+            returnError("Scanning cancelled by user");
         }
         async Task Publish() {
             await StartListeningIfNotiOS();
@@ -172,7 +179,7 @@ namespace MAUIcontainer {
                 returnError(ex.Message + ex.StackTrace);
             }
         }
-        async void Current_OnMessagePublished(ITagInfo tagInfo) {
+        void Current_OnMessagePublished(ITagInfo tagInfo) {
             NFCData NFCreturn = new NFCData() {
                 tagInfo = tagInfo as TagInfo,
                 success = true
@@ -183,7 +190,7 @@ namespace MAUIcontainer {
                     NFCreturn.Message = "Formatting tag operation successful";
                 else
                     NFCreturn.Message = "Writing tag operation successful";
-                await StopListening();
+                Task.Run(() => StopListening());
                 string s_NFCreturn = Convert.ToBase64String(Encoding.Default.GetBytes(JsonSerializer.Serialize(NFCreturn)));
                 _callback(_promiseId, s_NFCreturn);
             } catch (Exception ex) {
@@ -192,8 +199,5 @@ namespace MAUIcontainer {
         }
         void Current_OnTagListeningStatusChanged(bool isListening) { }
         void Current_OnNfcStatusChanged(bool isEnabled) { }
-        async void Current_OniOSReadingSessionCancelled(object sender, EventArgs e) {
-            App.errmessage += "iOS NFC Session has been cancelled";
-        }
     }
 }
